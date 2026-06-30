@@ -1,0 +1,59 @@
+slam_toolbox:
+  ros__parameters:
+    use_sim_time: false
+
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_footprint
+    scan_topic: /scan
+
+    mode: mapping
+    debug_logging: false
+
+    # fix: naikkan queue agar scan tidak di-drop saat CPU sibuk
+    message_queue_size: 10
+    # proses setiap N scan (1 = semua scan, 2 = skip 1, dst)
+    throttle_scans: 1
+
+    # seberapa sering TF map->odom dipublish
+    transform_publish_period: 0.05  # 20 Hz
+
+    # seberapa sering update map ke /map
+    map_update_interval: 1.0
+
+    # resolusi map
+    resolution: 0.05  # 5 cm
+
+    # LiDAR kamu max 12 m, jadi set max sedikit di atas atau sama
+    max_laser_range: 12.0
+
+    # interval minimum antar scan untuk dipakai SLAM
+    minimum_time_interval: 0.05
+
+    transform_timeout: 0.5
+    tf_buffer_duration: 30.0
+
+    # scan buffer — simpan beberapa scan terakhir untuk matching yang lebih robust
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+
+    # link matching — threshold kualitas scan match antar node
+    link_match_minimum_response_fine: 0.45
+    link_scan_maximum_distance: 1.5
+
+    # loop closure — koreksi drift saat robot kembali ke tempat yang sudah dipindai
+    do_loop_closing: true
+    loop_search_space_dimension: 8.0
+    loop_search_maximum_distance: 3.0
+    loop_match_minimum_chain_size: 10
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_min_response_coarse: 0.35
+    loop_match_min_response_fine: 0.45
+
+    # Ceres solver settings (biarkan, ini sudah umum)
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_region_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None

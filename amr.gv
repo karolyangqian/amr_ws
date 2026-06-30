@@ -1,0 +1,44 @@
+digraph G {
+node [shape=box];
+"base_footprint" [label="base_footprint"];
+"base_link" [label="base_link"];
+"caster_front_left_link" [label="caster_front_left_link"];
+"caster_front_right_link" [label="caster_front_right_link"];
+"caster_mid_left_link" [label="caster_mid_left_link"];
+"caster_mid_right_link" [label="caster_mid_right_link"];
+"caster_rear_left_link" [label="caster_rear_left_link"];
+"caster_rear_right_link" [label="caster_rear_right_link"];
+"imu_0_link" [label="imu_0_link"];
+"imu_1_link" [label="imu_1_link"];
+"lidar_front_right_link" [label="lidar_front_right_link"];
+"lidar_rear_left_link" [label="lidar_rear_left_link"];
+"wheel_left_link" [label="wheel_left_link"];
+"wheel_right_link" [label="wheel_right_link"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"base_footprint" -> "base_footprint_joint" [label="xyz: 0 0 0.1 \nrpy: 0 -0 0"]
+"base_footprint_joint" -> "base_link"
+"base_link" -> "caster_front_left_joint" [label="xyz: 0.2 0.18 -0.0345 \nrpy: 0 -0 0"]
+"caster_front_left_joint" -> "caster_front_left_link"
+"base_link" -> "caster_front_right_joint" [label="xyz: 0.2 -0.18 -0.0345 \nrpy: 0 -0 0"]
+"caster_front_right_joint" -> "caster_front_right_link"
+"base_link" -> "caster_mid_left_joint" [label="xyz: 0 0.23 -0.0345 \nrpy: 0 -0 0"]
+"caster_mid_left_joint" -> "caster_mid_left_link"
+"base_link" -> "caster_mid_right_joint" [label="xyz: 0 -0.23 -0.0345 \nrpy: 0 -0 0"]
+"caster_mid_right_joint" -> "caster_mid_right_link"
+"base_link" -> "caster_rear_left_joint" [label="xyz: -0.2 0.18 -0.0345 \nrpy: 0 -0 0"]
+"caster_rear_left_joint" -> "caster_rear_left_link"
+"base_link" -> "caster_rear_right_joint" [label="xyz: -0.2 -0.18 -0.0345 \nrpy: 0 -0 0"]
+"caster_rear_right_joint" -> "caster_rear_right_link"
+"base_link" -> "imu_0_joint" [label="xyz: 0.1 0 0.24 \nrpy: 0 -0 0"]
+"imu_0_joint" -> "imu_0_link"
+"base_link" -> "imu_1_joint" [label="xyz: -0.1 0 0.24 \nrpy: 0 -0 0"]
+"imu_1_joint" -> "imu_1_link"
+"base_link" -> "lidar_front_right_joint" [label="xyz: 0.23 -0.23 0.25 \nrpy: 0 0 -0.785398"]
+"lidar_front_right_joint" -> "lidar_front_right_link"
+"base_link" -> "lidar_rear_left_joint" [label="xyz: -0.23 0.23 0.25 \nrpy: 0 -0 2.35619"]
+"lidar_rear_left_joint" -> "lidar_rear_left_link"
+"base_link" -> "wheel_left_joint" [label="xyz: 0 0.15 0 \nrpy: 0 -0 0"]
+"wheel_left_joint" -> "wheel_left_link"
+"base_link" -> "wheel_right_joint" [label="xyz: 0 -0.15 0 \nrpy: 0 -0 0"]
+"wheel_right_joint" -> "wheel_right_link"
+}

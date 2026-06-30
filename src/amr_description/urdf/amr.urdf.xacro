@@ -1,0 +1,285 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="amr">
+
+  <!-- AMR Heavy-duty - dimensi & origin mesh DIKOMPENSASI sesuai hasil analisis bounds CAD.
+       base_link mesh: ukuran 1.0x1.0x0.519, bottom di Z=-0.118 (sebelum kompensasi). -->
+
+  <!-- ============ PROPERTIES ============ -->
+  <xacro:property name="body_length" value="1.00"/>
+  <xacro:property name="body_width"  value="1.00"/>
+  <xacro:property name="body_height" value="0.519"/>
+  <xacro:property name="body_mass"   value="80.0"/>
+
+  <!-- Shift visual base mesh ke atas: bottom mesh asli ada di Z=-0.118 setelah rotasi -->
+  <xacro:property name="base_mesh_z_shift" value="0.118"/>
+
+  <xacro:property name="wheel_radius"     value="0.105"/>
+  <xacro:property name="wheel_width"      value="0.04"/>
+  <xacro:property name="wheel_mass"       value="3.0"/>
+  <xacro:property name="wheel_separation" value="0.58"/>
+
+  <xacro:property name="caster_radius" value="0.05"/>
+  <xacro:property name="caster_mass"   value="0.45"/>
+  <xacro:property name="caster_x_front" value=" 0.29"/>
+  <xacro:property name="caster_x_rear"  value="-0.29"/>
+  <xacro:property name="caster_y_outer" value=" 0.29"/>
+
+  <!-- Lidar di pojok diagonal body, sedikit di atas top plate -->
+  <xacro:property name="lidar_x_off" value="0.45"/>
+  <xacro:property name="lidar_y_off" value="0.45"/>
+  <xacro:property name="lidar_z_off" value="0.25"/>
+
+  <xacro:property name="lidar_x"    value="0.064"/>
+  <xacro:property name="lidar_y"    value="0.064"/>
+  <xacro:property name="lidar_z"    value="0.065"/>
+  <xacro:property name="lidar_mass" value="0.10"/>
+
+  <xacro:property name="mesh_pkg" value="package://amr_description/meshes"/>
+  <xacro:property name="mesh_rpy_base" value="1.5708 0 -1.5708"/>
+
+  <!-- ============ INERTIA MACROS ============ -->
+  <xacro:macro name="box_inertia" params="m x y z">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m/12*(y*y+z*z)}" ixy="0.0" ixz="0.0"
+               iyy="${m/12*(x*x+z*z)}" iyz="0.0"
+               izz="${m/12*(x*x+y*y)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="cylinder_inertia_y" params="m r h">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m/12*(3*r*r+h*h)}" ixy="0.0" ixz="0.0"
+               iyy="${m/2*r*r}" iyz="0.0"
+               izz="${m/12*(3*r*r+h*h)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="sphere_inertia" params="m r">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${2/5*m*r*r}" ixy="0.0" ixz="0.0"
+               iyy="${2/5*m*r*r}" iyz="0.0"
+               izz="${2/5*m*r*r}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ============ BASE ============ -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child  link="base_link"/>
+    <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <!-- Mesh di-shift ke atas agar bottom-nya pas di Z=0 base_link -->
+    <visual>
+      <origin xyz="0 0 ${base_mesh_z_shift}" rpy="${mesh_rpy_base}"/>
+      <geometry><mesh filename="${mesh_pkg}/base_link.stl"/></geometry>
+      <material name="body_grey"><color rgba="0.8 0.8 0.9 1.0"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${body_height/2}" rpy="0 0 0"/>
+      <geometry><box size="${body_length} ${body_width} ${body_height}"/></geometry>
+    </collision>
+    <xacro:box_inertia m="${body_mass}" x="${body_length}" y="${body_width}" z="${body_height}"/>
+  </link>
+
+  <!-- ============ DRIVE WHEELS ============ -->
+  <!-- Mesh wheel punya offset kecil. Wheel kiri butuh shift Y=+0.002, kanan Y=-0.002,
+       Z=-0.014 (untuk kompensasi hub center mesh yang offset). -->
+  <xacro:macro name="drive_wheel" params="name reflect mesh_file y_shift">
+    <link name="wheel_${name}_link">
+      <visual>
+        <origin xyz="0 ${y_shift} -0.014" rpy="${mesh_rpy_base}"/>
+        <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry>
+        <material name="wheel_black"><color rgba="0.15 0.15 0.15 1.0"/></material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+      <xacro:cylinder_inertia_y m="${wheel_mass}" r="${wheel_radius}" h="${wheel_width}"/>
+    </link>
+    <joint name="wheel_${name}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child  link="wheel_${name}_link"/>
+      <origin xyz="0 ${reflect * wheel_separation/2} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <dynamics damping="0.5" friction="0.5"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:drive_wheel name="left"  reflect=" 1" mesh_file="left_wheel_link.stl"  y_shift=" 0.002"/>
+  <xacro:drive_wheel name="right" reflect="-1" mesh_file="right_wheel_link.stl" y_shift="-0.002"/>
+
+  <!-- ============ CASTERS ============ -->
+  <!-- Mesh caster fr/rl/rr punya origin OK (center ~Z+0.014). Shift Z=-0.014.
+       Mesh caster_fl_link.stl korup (X offset -0.645) -> pakai primitive saja. -->
+  <xacro:macro name="caster_wheel_mesh" params="name xp yp mesh_file">
+    <link name="caster_${name}_link">
+      <visual>
+        <origin xyz="0 0 -0.014" rpy="${mesh_rpy_base}"/>
+        <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry>
+        <material name="caster_silver"><color rgba="0.75 0.75 0.75 1.0"/></material>
+      </visual>
+      <collision><geometry><sphere radius="${caster_radius}"/></geometry></collision>
+      <xacro:sphere_inertia m="${caster_mass}" r="${caster_radius}"/>
+    </link>
+    <joint name="caster_${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child  link="caster_${name}_link"/>
+      <origin xyz="${xp} ${yp} ${-wheel_radius+caster_radius}" rpy="0 0 0"/>
+    </joint>
+    <gazebo reference="caster_${name}_link">
+      <mu1>0.0</mu1><mu2>0.0</mu2><material>Gazebo/DarkGrey</material>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="caster_wheel_primitive" params="name xp yp">
+    <link name="caster_${name}_link">
+      <visual>
+        <geometry><sphere radius="${caster_radius}"/></geometry>
+        <material name="caster_dark"><color rgba="0.2 0.2 0.2 1.0"/></material>
+      </visual>
+      <collision><geometry><sphere radius="${caster_radius}"/></geometry></collision>
+      <xacro:sphere_inertia m="${caster_mass}" r="${caster_radius}"/>
+    </link>
+    <joint name="caster_${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child  link="caster_${name}_link"/>
+      <origin xyz="${xp} ${yp} ${-wheel_radius+caster_radius}" rpy="0 0 0"/>
+    </joint>
+    <gazebo reference="caster_${name}_link">
+      <mu1>0.0</mu1><mu2>0.0</mu2><material>Gazebo/DarkGrey</material>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- caster_fl pakai mesh caster_fr_link.stl (mesh fl korup, mesh fr valid simetris) -->
+  <xacro:caster_wheel_mesh name="front_left"  xp="${caster_x_front}" yp=" ${caster_y_outer}" mesh_file="caster_fr_link.stl"/>
+  <xacro:caster_wheel_mesh name="front_right" xp="${caster_x_front}" yp="-${caster_y_outer}" mesh_file="caster_fr_link.stl"/>
+  <xacro:caster_wheel_mesh name="rear_left"   xp="${caster_x_rear}"  yp=" ${caster_y_outer}" mesh_file="caster_rl_link.stl"/>
+  <xacro:caster_wheel_mesh name="rear_right"  xp="${caster_x_rear}"  yp="-${caster_y_outer}" mesh_file="caster_rr_link.stl"/>
+
+  <!-- ============ GAZEBO BASE & WHEEL ============ -->
+  <gazebo reference="base_link"><material>Gazebo/Grey</material><mu1>0.0</mu1><mu2>0.0</mu2></gazebo>
+  <gazebo reference="wheel_left_link">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1><mu2>1.0</mu2><kp>500000.0</kp><kd>10.0</kd><minDepth>0.001</minDepth>
+  </gazebo>
+  <gazebo reference="wheel_right_link">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1><mu2>1.0</mu2><kp>500000.0</kp><kd>10.0</kd><minDepth>0.001</minDepth>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <ros>
+        <remapping>cmd_vel:=cmd_vel</remapping>
+        <remapping>odom:=odom</remapping>
+      </ros>
+      <left_joint>wheel_left_joint</left_joint>
+      <right_joint>wheel_right_joint</right_joint>
+      <wheel_separation>${wheel_separation}</wheel_separation>
+      <wheel_diameter>${2*wheel_radius}</wheel_diameter>
+      <max_wheel_torque>50000.0</max_wheel_torque>
+      <max_wheel_acceleration>10.0</max_wheel_acceleration>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>true</publish_wheel_tf>
+      <publish_wheel_joint_state>true</publish_wheel_joint_state>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+    </plugin>
+  </gazebo>
+
+  <!-- ============ LIDAR ============ -->
+  <!-- Mesh lidar punya bottom di Z=0 setelah rotasi. Visual origin Z=-0.032 agar
+       pusat mesh dimensi nempel di link origin. -->
+  <xacro:macro name="lidar_sensor" params="name xp yp yaw topic_name mesh_file">
+    <link name="${name}_link">
+      <visual>
+        <origin xyz="0 0 -0.032" rpy="${mesh_rpy_base}"/>
+        <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry>
+        <material name="lidar_blue"><color rgba="0.0 0.2 0.8 1.0"/></material>
+      </visual>
+      <collision>
+        <geometry><box size="${lidar_x} ${lidar_y} ${lidar_z}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="${lidar_mass}"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+      </inertial>
+    </link>
+    <joint name="${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child  link="${name}_link"/>
+      <origin xyz="${xp} ${yp} ${lidar_z_off}" rpy="0 0 ${yaw}"/>
+    </joint>
+    <gazebo reference="${name}_link">
+      <material>Gazebo/Blue</material>
+      <sensor name="${name}_sensor" type="ray">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>210</samples><resolution>1</resolution>
+              <min_angle>-1.8326</min_angle><max_angle>1.8326</max_angle>
+            </horizontal>
+          </scan>
+          <range><min>0.15</min><max>12.0</max><resolution>0.01</resolution></range>
+        </ray>
+        <plugin name="${name}_plugin" filename="libgazebo_ros_ray_sensor.so">
+          <ros><remapping>~/out:=${topic_name}</remapping></ros>
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <frame_name>${name}_link</frame_name>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:lidar_sensor name="lidar_front_right"
+                      xp=" ${lidar_x_off}" yp="-${lidar_y_off}" yaw="${-pi/4}"
+                      topic_name="scan_front" mesh_file="lidar1_link.stl"/>
+
+  <xacro:lidar_sensor name="lidar_rear_left"
+                      xp="-${lidar_x_off}" yp=" ${lidar_y_off}" yaw="${3*pi/4}"
+                      topic_name="scan_rear" mesh_file="lidar2_link.stl"/>
+
+  <!-- ============ IMU ============ -->
+  <xacro:macro name="imu_sensor" params="name xp yp">
+    <link name="${name}_link">
+      <visual>
+        <geometry><box size="0.025 0.025 0.005"/></geometry>
+        <material name="imu_green"><color rgba="0.0 0.8 0.0 1.0"/></material>
+      </visual>
+      <inertial>
+        <mass value="0.02"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+      </inertial>
+    </link>
+    <joint name="${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child  link="${name}_link"/>
+      <origin xyz="${xp} ${yp} ${body_height-0.01}" rpy="0 0 0"/>
+    </joint>
+    <gazebo reference="${name}_link">
+      <material>Gazebo/Green</material>
+      <sensor name="${name}_sensor" type="imu">
+        <always_on>true</always_on><update_rate>50</update_rate>
+        <plugin name="${name}_plugin" filename="libgazebo_ros_imu_sensor.so">
+          <ros><remapping>~/out:=/imu/data</remapping></ros>
+          <initial_orientation_as_reference>false</initial_orientation_as_reference>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:imu_sensor name="imu" xp="0.0" yp="0.0"/>
+
+</robot>

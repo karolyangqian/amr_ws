@@ -1,0 +1,6 @@
+[submodule "src/ros2_laser_scan_merger"]
+	path = src/ros2_laser_scan_merger
+	url = git@github.com:mich1342/ros2_laser_scan_merger.git
+[submodule "src/ydlidar_ros2_driver"]
+	path = src/ydlidar_ros2_driver
+	url = git@github.com:YDLIDAR/ydlidar_ros2_driver.git

@@ -1,0 +1,18 @@
+mission_executor_node:
+  ros__parameters:
+    # Daftar nama stasiun yang tersedia
+    station_names: ["A", "B", "C"]
+
+    # Koordinat setiap stasiun dalam frame "map" (meter & radian)
+    # → Ganti nilai x/y/yaw sesuai hasil pemetaan (ros2 topic echo /amcl_pose)
+    station_A_x:   1.0
+    station_A_y:   0.0
+    station_A_yaw: 0.0      # menghadap arah +X
+
+    station_B_x:   2.0
+    station_B_y:   1.5
+    station_B_yaw: 1.5708   # menghadap arah +Y  (90°)
+
+    station_C_x:   0.0
+    station_C_y:   2.0
+    station_C_yaw: 3.1416   # menghadap arah -X  (180°)

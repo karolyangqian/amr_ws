@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import LifecycleNode, Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -19,9 +19,18 @@ def generate_launch_description():
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
 
     args = [
-        DeclareLaunchArgument('front_lidar_port', default_value='/dev/amr_lidar_front'),
-        DeclareLaunchArgument('rear_lidar_port',  default_value='/dev/amr_lidar_rear'),
+        DeclareLaunchArgument('front_lidar_port', default_value='/dev/ttyUSB0'),
+        DeclareLaunchArgument('rear_lidar_port',  default_value='/dev/ttyUSB1'),
+        DeclareLaunchArgument('motor_port',       default_value='/dev/ttyUSB2'),
+        DeclareLaunchArgument('teensy_port',      default_value='/dev/ttyACM0'),
     ]
+
+    # Beri akses ke semua port secara otomatis saat launch
+    chmod_ports = ExecuteProcess(
+        cmd=['bash', '-c',
+             'sudo chmod 666 /dev/ttyUSB0 /dev/ttyUSB1 /dev/ttyUSB2 /dev/ttyACM0 2>/dev/null || true'],
+        output='screen',
+    )
 
     rsp = Node(
         package='robot_state_publisher',
@@ -114,7 +123,25 @@ def generate_launch_description():
         output='screen',
     )
 
+    zlac_driver = Node(
+        package='amr_hardware',
+        executable='zlac_driver_node',
+        name='zlac_driver_node',
+        parameters=[{
+            'port':            LaunchConfiguration('motor_port'),
+            'accel_time_ms':   200,
+            'decel_time_ms':   200,
+            'cmd_vel_timeout': 1000.0,
+            'max_reg':         250,
+        }],
+        output='screen',
+    )
+
+    # Delay 3 detik agar chmod dan node lain selesai init sebelum ZLAC konek
+    zlac_delayed = TimerAction(period=3.0, actions=[zlac_driver])
+
     return LaunchDescription(args + [
+        chmod_ports,
         rsp,
         jsp,
         lidar_front,
@@ -125,4 +152,5 @@ def generate_launch_description():
         wheel_odom,
         imu_fixer,
         cmd_vel_inverter,
+        zlac_delayed,
     ])

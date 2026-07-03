@@ -12,7 +12,8 @@ ekf_filter_node:
     world_frame:     odom
 
     # ── SENSOR 1: Odometri Encoder Roda (/odom dari odom_node) ──────────────
-    # Menyumbangkan: posisi X, Y dan kecepatan Vx, Vyaw
+    # Menyumbangkan: posisi X,Y  dan kecepatan linear Vx + kecepatan rotasi Vyaw
+    # Format: [x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]
     odom0: /odom
     odom0_config: [true,  true,  false,
                    false, false, false,
@@ -22,15 +23,19 @@ ekf_filter_node:
     odom0_differential: false
     odom0_queue_size: 10
 
-    # IMU dinonaktifkan sementara — quaternion dari micro-ROS Teensy tidak stabil saat startup
-    # dan menyebabkan EKF NaN. Aktifkan kembali setelah IMU firmware terkonfirmasi stabil.
-    # imu0: /imu/data_fixed
-    # imu0_config: [false, false, false,
-    #               false, false, true,
-    #               false, false, false,
-    #               false, false, false,
-    #               false, false, false]
-    # imu0_differential: false
-    # imu0_relative: true
-    # imu0_queue_size: 10
-    # imu0_remove_gravitational_acceleration: false
+    # ── SENSOR 2: IMU BNO08x via Teensy (/imu/data_fixed dari imu_fixer_node) ─
+    # Hanya gunakan YAW (orientation[5]) untuk koreksi sudut hadap.
+    # Vx, Vyaw tetap dari encoder (odom0) — IMU TIDAK menyumbang kecepatan.
+    # imu0_relative: true  → heading dihitung relatif dari posisi awal (bukan absolut/mag)
+    #                         sehingga tidak terpengaruh orientasi robot saat startup.
+    # Format: [x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]
+    imu0: /imu/data_fixed
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, false,
+                  false, false, false]
+    imu0_differential: false
+    imu0_relative: true
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: false

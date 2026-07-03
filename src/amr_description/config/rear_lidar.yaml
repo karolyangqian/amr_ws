@@ -23,3 +23,6 @@
     range_min: 0.03
     invalid_range_is_inf: true
     debug: false
+    m1_mode: 0
+    m2_mode: 0
+    m3_mode: 0

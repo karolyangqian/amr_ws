@@ -3,3 +3,5 @@ install/
 log/
 .claude/
 .vscode/
+__pycache__/
+*.py[cod]

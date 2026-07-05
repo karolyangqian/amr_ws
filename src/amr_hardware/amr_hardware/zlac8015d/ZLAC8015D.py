@@ -176,7 +176,10 @@ class Controller:
             R_ms = 32767
         elif R_ms < 0:
             R_ms = 0
-        result = self.client.write_registers(self.L_ACL_TIME, [int(L_ms),int(R_ms)], device_id=self.ID)
+        # result = self.client.write_registers(self.L_ACL_TIME, [int(L_ms),int(R_ms)], device_id=self.ID)
+        result = self.client.write_register(self.L_ACL_TIME, int(L_ms), device_id=self.ID)
+        result = self.client.write_register(self.L_ACL_TIME + 1, int(R_ms), device_id=self.ID)
+
 
     def set_decel_time(self, L_ms, R_ms):
         if L_ms > 32767:
@@ -187,7 +190,9 @@ class Controller:
             R_ms = 32767
         elif R_ms < 0:
             R_ms = 0
-        result = self.client.write_registers(self.L_DCL_TIME, [int(L_ms), int(R_ms)], device_id=self.ID)
+        # result = self.client.write_registers(self.L_DCL_TIME, [int(L_ms), int(R_ms)], device_id=self.ID)
+        result = self.client.write_register(self.L_DCL_TIME, int(L_ms), device_id=self.ID)
+        result = self.client.write_register(self.L_DCL_TIME + 1, int(R_ms), device_id=self.ID)
 
     def int16Dec_to_int16Hex(self,int16):
         lo_byte = (int16 & 0x00FF)
@@ -206,7 +211,9 @@ class Controller:
             R_rpm = -3000
         left_bytes = self.int16Dec_to_int16Hex(L_rpm)
         right_bytes = self.int16Dec_to_int16Hex(R_rpm)
-        result = self.client.write_registers(self.L_CMD_RPM, [left_bytes, right_bytes], device_id=self.ID)
+        # result = self.client.write_registers(self.L_CMD_RPM, [left_bytes, right_bytes], device_id=self.ID)
+        result = self.client.write_register(self.L_CMD_RPM, int(left_bytes), device_id=self.ID)
+        result = self.client.write_register(self.L_CMD_RPM + 1, int(right_bytes), device_id=self.ID)
 
     def get_rpm(self):
         registers = self.modbus_fail_read_handler(self.L_FB_RPM, 2)
@@ -232,7 +239,9 @@ class Controller:
             max_R_rpm = 1000
         elif max_R_rpm < 1:
             max_R_rpm = 1
-        result = self.client.write_registers(self.L_MAX_RPM_POS, [int(max_L_rpm), int(max_R_rpm)], device_id=self.ID)
+        # result = self.client.write_registers(self.L_MAX_RPM_POS, [int(max_L_rpm), int(max_R_rpm)], device_id=self.ID)
+        result = self.client.write_register(self.L_MAX_RPM_POS, int(max_L_rpm), device_id=self.ID)
+        result = self.client.write_register(self.L_MAX_RPM_POS + 1, int(max_R_rpm), device_id=self.ID)
 
     def set_position_async_control(self):
         result = self.client.write_register(self.POS_CONTROL_TYPE, self.ASYNC, device_id=self.ID)
@@ -253,7 +262,9 @@ class Controller:
         L_array = self.deg_to_32bitArray(ang_L)
         R_array = self.deg_to_32bitArray(ang_R)
         all_cmds_array = L_array + R_array
-        result = self.client.write_registers(self.L_CMD_REL_POS_HI, all_cmds_array, device_id=self.ID)
+        # result = self.client.write_registers(self.L_CMD_REL_POS_HI, all_cmds_array, device_id=self.ID)
+        result = self.client.write_register(self.L_CMD_REL_POS_HI, L_array, device_id=self.ID)
+        result = self.client.write_register(self.L_CMD_REL_POS_HI + 1, R_array, device_id=self.ID)
 
     def get_wheels_travelled(self):
         registers = self.modbus_fail_read_handler(self.L_FB_POS_HI, 4)

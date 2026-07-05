@@ -80,13 +80,19 @@ class ZlacDriverNode(Node):
         except Exception:
             pass
         self.zlac = ZLACController(port=self._port)
+        self.get_logger().info('Duar')
         self.zlac.clear_alarm()
         time.sleep(0.3)
+        self.get_logger().info('Duar')
         self.zlac.set_accel_time(self._accel_ms, self._accel_ms)
+        self.get_logger().info("Duar")
         self.zlac.set_decel_time(self._decel_ms, self._decel_ms)
+        self.get_logger().info("Duar")
         self.zlac.set_mode(3)
+        self.get_logger().info("Duar")
         time.sleep(0.2)
         self.zlac.enable_motor()
+        self.get_logger().info("Duar")
         time.sleep(0.2)
         self.get_logger().info('ZLAC ready: ALRM_CLR → MODE=3 → ENABLE')
 

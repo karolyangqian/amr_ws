@@ -14,8 +14,15 @@ Listening for smartphone controller input...\r
 \r
 [ESTOP OVERRIDE]:\r
   Send "~" from your app to reset manual lock after E-Stop clears.\r
+\r
+[DYNAMIC SPEED]:\r
+  Send a raw number (e.g. "0.5") to change speed scales on-the-fly.\r
 =================================\r
 """
+
+# Konstanta Kinematika Robot
+MEAN_RADIUS = 0.454  # meter
+ANGULAR_RATIO = 0.60  # 60% dari kecepatan linear
 
 class TeleopWifiNode(Node):
 
@@ -25,18 +32,19 @@ class TeleopWifiNode(Node):
         # Declare parameters for network configuration and speed
         self.declare_parameter('ip', '0.0.0.0')         
         self.declare_parameter('port', 5005)           
-        self.declare_parameter('linear_speed', 0.3)
-        self.declare_parameter('angular_speed', 0.4)
+        self.declare_parameter('linear_speed', 0.4)
         self.declare_parameter('publish_rate', 20.0)
 
         self.ip            = self.get_parameter('ip').value
         self.port          = self.get_parameter('port').value
         self.linear_speed  = self.get_parameter('linear_speed').value
-        self.angular_speed = self.get_parameter('angular_speed').value
+        
+        # Hitung angular speed awal berdasarkan formula konfigurasi fisik robot
+        self.angular_speed = (ANGULAR_RATIO * self.linear_speed) / MEAN_RADIUS
 
         # --- STATE LOCK UNTUK EMERGENCY ---
-        self._estop_active = False  # Status langsung dari topik /emergency_stop
-        self._user_locked  = False  # Status penguncian input kontrol smartphone
+        self._estop_active = False  
+        self._user_locked  = False  
 
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         
@@ -66,12 +74,18 @@ class TeleopWifiNode(Node):
         self._net_thread.start()
 
         sys.stdout.write(BANNER)
-        self.get_logger().info(f"UDP Server up on {self.ip}:{self.port}")
+        self._print_speeds()
+
+    def _print_speeds(self):
+        sys.stdout.write(
+            f'\r[UPDATE] Linear: {self.linear_speed:.2f} m/s | '
+            f'Angular: {self.angular_speed:.2f} rad/s        \r\n'
+        )
+        sys.stdout.flush()
 
     def _estop_cb(self, msg: Bool):
         with self._lock:
             self._estop_active = msg.data
-            # Jika E-stop aktif, otomatis kunci input pengguna
             if self._estop_active and not self._user_locked:
                 self._user_locked = True
                 self._lin = 0.0
@@ -93,6 +107,23 @@ class TeleopWifiNode(Node):
 
     def _handle_command(self, cmd):
         with self._lock:
+            # --- PARSING NILAI NUMERIK (Pengaturan Speed Dinamis) ---
+            try:
+                new_linear = float(cmd)
+                # Pastikan nilai aman (misal tidak minus atau tidak terlalu ekstrem)
+                if new_linear >= 0.0:
+                    self.linear_speed = new_linear
+                    # Hitung rasio angular otomatis sesuai spesifikasi robot (60% lin / radius)
+                    self.angular_speed = (ANGULAR_RATIO * self.linear_speed) / MEAN_RADIUS
+                    self._print_speeds()
+                else:
+                    sys.stdout.write('\r[⚠️ ERROR] Nilai kecepatan linear tidak boleh negatif. \r')
+                    sys.stdout.flush()
+                return
+            except ValueError:
+                # Jika bukan angka, abaikan exception ini dan lanjut ke parse string/karakter biasa
+                pass
+
             # --- MEKANISME RECOVERY / UNLOCK ---
             if cmd == '~':
                 if self._estop_active:
@@ -151,7 +182,6 @@ class TeleopWifiNode(Node):
 
     def _publish_cmd(self):
         with self._lock:
-            # Proteksi lapis kedua: paksa data ke nol jika interlock aktif
             if self._user_locked or self._estop_active:
                 lin = 0.0
                 ang = 0.0

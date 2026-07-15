@@ -12,6 +12,7 @@ def generate_launch_description():
     pkg_merger = get_package_share_directory('ros2_laser_scan_merger')
 
     urdf_file        = os.path.join(pkg_desc,   'urdf',   'amr.urdf.xacro')
+    ekf_yaml         = os.path.join(pkg_desc, 'config', 'ekf.yaml')
     front_lidar_yaml = os.path.join(pkg_desc,   'config', 'front_lidar.yaml')
     rear_lidar_yaml  = os.path.join(pkg_desc,   'config', 'rear_lidar.yaml')
     merger_config    = os.path.join(pkg_merger, 'config', 'params.yaml')
@@ -93,6 +94,14 @@ def generate_launch_description():
         output='screen',
     )
 
+    ekf = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        parameters=[ekf_yaml],
+        output='screen',
+    )
+
     wheel_odom = Node(
         package='amr_hardware',
         executable='wheel_travel_odom_node',
@@ -125,4 +134,5 @@ def generate_launch_description():
         wheel_odom,
         imu_fixer,
         cmd_vel_inverter,
+        ekf,
     ])

@@ -43,10 +43,10 @@ for dev in /dev/ttyUSB* /dev/ttyACM*; do
 done
 echo ""
 
-# Deteksi per device
+# Deteksi per device (Perbaikan: Menggunakan 'mcu' agar konsisten sepanjang script)
 declare -A VENDOR PRODUCT SERIAL
 
-for role in lidar_front lidar_rear motor imu; do
+for role in lidar_front lidar_rear motor mcu; do
     case $role in
         lidar_front) label="Lidar DEPAN  (USB0 default)" ;;
         lidar_rear)  label="Lidar BELAKANG (USB1 default)" ;;

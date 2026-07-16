@@ -1,11 +1,14 @@
 """
-zlac_driver_node — motor control via NUC USB-RS485 (PL2303 / amr_motor).
+zlac_driver_node — motor control + encoder feedback via USB-RS485.
 
-Write-only path: hanya kirim RPM, tidak baca encoder (adapter DE hardwired HIGH).
-Odom ditangani odom_node (dead reckoning dari /cmd_vel_raw).
+Write path : kirim RPM ke ZLAC8015D via Modbus RTU.
+Read  path : baca encoder ZLAC → publish /wheel_travel (Float32MultiArray)
+             sehingga wheel_travel_odom_node bisa hitung odometry.
 
-Subscribe : /cmd_vel_raw     (geometry_msgs/Twist)
+Subscribe : /cmd_vel         (geometry_msgs/Twist)
+            /cmd_vel_raw     (geometry_msgs/Twist)
             /emergency_stop  (std_msgs/Bool)
+Publish   : /wheel_travel    (std_msgs/Float32MultiArray)  [right_m, left_m]
 """
 
 import signal
@@ -16,14 +19,14 @@ import rclpy
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float32MultiArray
 
 from amr_hardware.zlac8015d.ZLAC8015D import Controller as ZLACController
 
 # Empirical dari teleop_keyboard.py: set_rpm(-50,+50) berhasil gerak ~0.5 m/s
 # → LINEAR_TO_RPM = 50 / 0.5 = 100 register_units per m/s
 LINEAR_TO_RPM = 100.0
-WHEEL_SEP     = 0.445   # m — jarak antar roda
+WHEEL_SEP     = 0.50   # m — jarak antar roda
 
 
 class ZlacDriverNode(Node):
@@ -34,7 +37,7 @@ class ZlacDriverNode(Node):
         self.declare_parameter('port',           '/dev/amr_motor')
         self.declare_parameter('accel_time_ms',   200)
         self.declare_parameter('decel_time_ms',   200)
-        self.declare_parameter('cmd_vel_timeout',  0.25)
+        self.declare_parameter('cmd_vel_timeout',  1000.0)
         self.declare_parameter('max_reg',          250)
 
         port          = self.get_parameter('port').value
@@ -44,17 +47,11 @@ class ZlacDriverNode(Node):
         self._max_reg = self.get_parameter('max_reg').value
 
         self.get_logger().info(f'Connecting ZLAC on {port} …')
+        self._port     = port
+        self._accel_ms = accel_ms
+        self._decel_ms = decel_ms
         try:
-            self.zlac = ZLACController(port=port)
-            self.zlac.clear_alarm()
-            time.sleep(0.3)
-            self.zlac.set_accel_time(accel_ms, accel_ms)
-            self.zlac.set_decel_time(decel_ms, decel_ms)
-            self.zlac.set_mode(3)
-            time.sleep(0.2)
-            self.zlac.enable_motor()
-            time.sleep(0.2)
-            self.get_logger().info('ZLAC ready: ALRM_CLR → MODE=3 → ENABLE')
+            self._connect()
         except Exception as e:
             self.get_logger().error(f'ZLAC init failed: {e}')
             raise
@@ -65,6 +62,9 @@ class ZlacDriverNode(Node):
         self._estop    = False
         self._stopped  = True
 
+        # Publisher odometry encoder → wheel_travel_odom_node
+        self._travel_pub = self.create_publisher(Float32MultiArray, '/wheel_travel', 10)
+
         self.create_subscription(Twist, '/cmd_vel_raw',    self._cmd_cb,   10)
         self.create_subscription(Twist, '/cmd_vel',        self._cmd_cb,   10)
         self.create_subscription(Bool,  '/emergency_stop', self._estop_cb, 10)
@@ -72,6 +72,29 @@ class ZlacDriverNode(Node):
 
         self.get_logger().info(
             f'zlac_driver_node aktif | port={port} | max_reg={self._max_reg}')
+
+    def _connect(self):
+        """Buka koneksi ke ZLAC dan inisialisasi motor. Bisa dipanggil ulang untuk reconnect."""
+        try:
+            self.zlac.client.close()
+        except Exception:
+            pass
+        self.zlac = ZLACController(port=self._port)
+        self.get_logger().info('Duar')
+        self.zlac.clear_alarm()
+        time.sleep(0.3)
+        self.get_logger().info('Duar')
+        self.zlac.set_accel_time(self._accel_ms, self._accel_ms)
+        self.get_logger().info("Duar")
+        self.zlac.set_decel_time(self._decel_ms, self._decel_ms)
+        self.get_logger().info("Duar")
+        self.zlac.set_mode(3)
+        self.get_logger().info("Duar")
+        time.sleep(0.2)
+        self.zlac.enable_motor()
+        self.get_logger().info("Duar")
+        time.sleep(0.2)
+        self.get_logger().info('ZLAC ready: ALRM_CLR → MODE=3 → ENABLE')
 
     # ── Sign convention (dari teleop_keyboard.py yg terbukti jalan) ──────────
     # Forward (vx>0): left register NEGATIF, right register POSITIF
@@ -90,7 +113,11 @@ class ZlacDriverNode(Node):
         try:
             self.zlac.set_rpm(l, r)
         except Exception as e:
-            self.get_logger().warn(f'ZLAC write: {e}', throttle_duration_sec=2.0)
+            self.get_logger().warn(f'ZLAC write gagal, coba reconnect… ({e})', throttle_duration_sec=5.0)
+            try:
+                self._connect()
+            except Exception as re:
+                self.get_logger().error(f'ZLAC reconnect gagal: {re}', throttle_duration_sec=5.0)
 
     def _cmd_cb(self, msg: Twist):
         self._vx       = msg.linear.x
@@ -104,16 +131,26 @@ class ZlacDriverNode(Node):
             self._send(0.0, 0.0)
 
     def _timer_cb(self):
+        # ── Kirim RPM ────────────────────────────────────────────────────────
         if self._estop:
-            self._send(0.0, 0.0)  # keep sending to prevent ZLAC offline timeout
-            return
-        dt = (self.get_clock().now().nanoseconds - self._last_cmd.nanoseconds) / 1e9
-        if dt > self._timeout:
-            self._stopped = True
-            self._send(0.0, 0.0)  # always send 0 — never go silent, ZLAC offline=1s
-            return
-        self._stopped = False
-        self._send(self._vx, self._wz)
+            self._send(0.0, 0.0)
+        else:
+            dt = (self.get_clock().now().nanoseconds - self._last_cmd.nanoseconds) / 1e9
+            if dt > self._timeout:
+                self._stopped = True
+                self._send(0.0, 0.0)
+            else:
+                self._stopped = False
+                self._send(self._vx, self._wz)
+
+        # ── Baca encoder → publish /wheel_travel ─────────────────────────────
+        try:
+            r_m, l_m = self.zlac.get_wheels_travelled()  # [right_m, left_m]
+            msg = Float32MultiArray()
+            msg.data = [float(r_m), float(l_m)]
+            self._travel_pub.publish(msg)
+        except Exception as e:
+            self.get_logger().warn(f'ZLAC read encoder: {e}', throttle_duration_sec=5.0)
 
     def destroy_node(self):
         # Blokir SIGINT/SIGTERM selama cleanup supaya pymodbus tidak ter-interrupt
@@ -124,7 +161,10 @@ class ZlacDriverNode(Node):
             try:
                 self.zlac.set_rpm(0, 0)
                 time.sleep(0.05)
-                print('[zlac_driver_node] ZLAC stopped (RPM=0).')
+                self.zlac.disable_motor()
+                time.sleep(0.05)
+                self.zlac.client.close()
+                print('[zlac_driver_node] ZLAC stopped (RPM=0) and port closed cleanly.')
                 break
             except Exception:
                 time.sleep(0.05)

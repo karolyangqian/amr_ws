@@ -24,6 +24,7 @@ setup(
             'zlac_driver_node         = amr_hardware.zlac_driver_node:main',
             'teensy_bridge_node       = amr_hardware.teensy_bridge_node:main',
             'teleop_keyboard_node     = amr_hardware.teleop_keyboard_node:main',
+            'teleop_wifi_node         = amr_hardware.teleop_wifi_node:main',
             'emergency_stop_node      = amr_hardware.emergency_stop_node:main',
             # Node baru untuk arsitektur Teensy micro-ROS + BNO08x
             'odom_node                = amr_hardware.odom_node:main',

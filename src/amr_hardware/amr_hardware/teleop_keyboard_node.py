@@ -1,3 +1,4 @@
+# // teleop_keyboard_node.py
 import select
 import sys
 import termios
@@ -7,6 +8,7 @@ import threading
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Bool
 
 
 BANNER = """\r
@@ -16,6 +18,9 @@ BANNER = """\r
   SPACE : Stop   Q / Ctrl+C : Keluar\r
   I : Linear +   K : Linear -\r
   J : Angular +  L : Angular -\r
+\r
+  [ESTOP OVERRIDE]:\r
+  ~ : Reset manual lock setelah E-Stop aman\r
 ===========================\r
 """
 
@@ -40,7 +45,14 @@ class TeleopKeyboardNode(Node):
         self.linear_speed  = self.get_parameter('linear_speed').value
         self.angular_speed = self.get_parameter('angular_speed').value
 
+        # --- STATE LOCK UNTUK EMERGENCY ---
+        self._estop_active = False  # Status langsung dari topik /emergency_stop
+        self._user_locked  = False  # Status penguncian input keyboard manual
+
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        
+        # Subscribe ke status emergency stop
+        self.create_subscription(Bool, '/emergency_stop', self._estop_cb, 10)
 
         self._lin     = 0.0
         self._ang     = 0.0
@@ -63,6 +75,17 @@ class TeleopKeyboardNode(Node):
         )
         sys.stdout.flush()
 
+    def _estop_cb(self, msg: Bool):
+        with self._lock:
+            self._estop_active = msg.data
+            # Jika E-stop aktif, otomatis kunci input pengguna
+            if self._estop_active and not self._user_locked:
+                self._user_locked = True
+                self._lin = 0.0
+                self._ang = 0.0
+                sys.stdout.write('\r[🚨 ESTOP ACTIVE - KEYBOARD LOCKED]    \r')
+                sys.stdout.flush()
+
     def _keyboard_loop(self):
         fd  = sys.stdin.fileno()
         old = termios.tcgetattr(fd)
@@ -75,13 +98,35 @@ class TeleopKeyboardNode(Node):
                     self._handle_key(ch)
                 else:
                     with self._lock:
-                        self._lin = 0.0
-                        self._ang = 0.0
+                        # Hanya reset ke 0 jika tidak sedang terkunci/estop
+                        if not self._user_locked and not self._estop_active:
+                            self._lin = 0.0
+                            self._ang = 0.0
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
     def _handle_key(self, ch):
         with self._lock:
+            # --- MEKANISME RECOVERY / UNLOCK ---
+            if ch == '~':
+                if self._estop_active:
+                    sys.stdout.write('\r[⚠️ GAGAL] Sensor masih mendeteksi bahaya! Tidak bisa unlock. \r')
+                elif self._user_locked:
+                    self._user_locked = False
+                    sys.stdout.write('\r[✅ UNLOCKED] Keyboard aktif kembali.                       \r')
+                else:
+                    sys.stdout.write('\r[INFO] Keyboard sudah dalam kondisi tidak terkunci.          \r')
+                sys.stdout.flush()
+                return
+
+            # --- JIKA TERKUNCI, ABAIKAN SEMUA TOMBOL DI BAWAH INI ---
+            if self._user_locked:
+                # Berikan feedback visual kecil jika user mencoba menekan tombol arah saat terkunci
+                if ch in ('w', 'a', 's', 'd'):
+                    sys.stdout.write('\r[🔒 LOCKED] Tekan `~` untuk unlock (Pastikan E-stop Clear)  \r')
+                    sys.stdout.flush()
+                return
+
             if ch == 'w':
                 self._lin = -self.linear_speed
                 self._ang =  0.0
@@ -131,8 +176,13 @@ class TeleopKeyboardNode(Node):
 
     def _publish_cmd(self):
         with self._lock:
-            lin = self._lin
-            ang = self._ang
+            # Jika sistem mendeteksi lock atau estop aktif, paksa output data ke nol mutlak
+            if self._user_locked or self._estop_active:
+                lin = 0.0
+                ang = 0.0
+            else:
+                lin = self._lin
+                ang = self._ang
 
         msg = Twist()
         msg.linear.x  = lin

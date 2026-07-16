@@ -1,0 +1,63 @@
+/ros2_laser_scan_merger:
+  ros__parameters:
+    flip1: false
+    flip2: false
+    inverse1: false
+    inverse2: false
+
+    laser1Alpha: -45.0
+    laser1AngleMax: 110.0
+    laser1AngleMin: -110.0
+    laser1B: 0
+    laser1G: 0
+    laser1R: 255
+    laser1XOff: 0.23
+    laser1YOff: -0.23
+    laser1ZOff: 0.25
+
+    laser2Alpha: 135.0
+    laser2AngleMax: 110.0
+    laser2AngleMin: -110.0
+    laser2B: 255
+    laser2G: 0
+    laser2R: 0
+    laser2XOff: -0.23
+    laser2YOff: 0.23
+    laser2ZOff: 0.25
+
+    pointCloudTopic: cloud_in
+    pointCloutFrameId: base_link
+
+    qos_overrides./parameter_events.publisher.depth: 1000
+    qos_overrides./parameter_events.publisher.reliability: best_effort
+    qos_overrides./scan.publisher.reliability: reliable
+    qos_overrides./scan.publisher.depth: 10
+
+    scanTopic1: /front_scan
+    scanTopic2: /rear_scan
+
+    show1: true
+    show2: true
+    use_sim_time: false
+
+/pointcloud_to_laserscan:
+  ros__parameters:
+    angle_increment: 0.0087
+    angle_max: 3.14
+    angle_min: -3.14
+    inf_epsilon: 1.0
+    max_height: 1.0
+    min_height: 0.0
+    qos_overrides:
+      /parameter_events:
+        publisher:
+          depth: 1000
+          reliability: best_effort
+    queue_size: 16
+    range_max: 12.0
+    range_min: 0.03
+    scan_time: 0.1
+    target_frame: base_link
+    transform_tolerance: 0.01
+    use_inf: true
+    use_sim_time: false

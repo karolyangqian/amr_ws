@@ -5,7 +5,7 @@
 # Hasil: /dev/amr_lidar_front  → lidar depan
 #        /dev/amr_lidar_rear   → lidar belakang
 #        /dev/amr_motor        → ZLAC8015D RS485
-#        /dev/amr_imu          → Teensy (IMU)
+#        /dev/amr_mcu          → Teensy (IMU)
 
 set -e
 
@@ -43,15 +43,15 @@ for dev in /dev/ttyUSB* /dev/ttyACM*; do
 done
 echo ""
 
-# Deteksi per device
+# Deteksi per device (Perbaikan: Menggunakan 'mcu' agar konsisten sepanjang script)
 declare -A VENDOR PRODUCT SERIAL
 
-for role in lidar_front lidar_rear motor imu; do
+for role in lidar_front lidar_rear motor mcu; do
     case $role in
         lidar_front) label="Lidar DEPAN  (USB0 default)" ;;
         lidar_rear)  label="Lidar BELAKANG (USB1 default)" ;;
         motor)       label="Motor ZLAC8015D (USB2 default)" ;;
-        imu)         label="Teensy IMU (ACM0 default)" ;;
+        mcu)         label="Teensy MCU (ACM0 default)" ;;
     esac
 
     echo "--- $label ---"
@@ -75,7 +75,7 @@ LINES+=("# AMR USB udev rules — auto-generated oleh setup_udev.sh")
 LINES+=("# Edit manual kalau perlu ganti port/device")
 LINES+=("")
 
-for role in lidar_front lidar_rear motor imu; do
+for role in lidar_front lidar_rear motor mcu; do
     [ -z "${VENDOR[$role]}" ] && continue
     symlink="amr_${role}"
     MATCH="SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"${VENDOR[$role]}\", ATTRS{idProduct}==\"${PRODUCT[$role]}\""
@@ -106,7 +106,7 @@ if [[ "$confirm" =~ ^[Yy]$ ]]; then
     echo "  front_lidar_port: /dev/amr_lidar_front"
     echo "  rear_lidar_port:  /dev/amr_lidar_rear"
     echo "  motor_port:       /dev/amr_motor"
-    echo "  imu_port:         /dev/amr_imu"
+    echo "  mcu_port:         /dev/amr_mcu"
 else
     echo "Dibatalkan. File sementara ada di: $TMP"
 fi

@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     ros-humble-rmw-cyclonedds-cpp \
     && rm -rf /var/lib/apt/lists/*
 
+# Install YDLidar-SDK
 RUN git clone https://github.com/YDLidar/YDLidar-SDK.git /tmp/YDLidar-SDK && \
     mkdir -p /tmp/YDLidar-SDK/build && \
     cd /tmp/YDLidar-SDK/build && \

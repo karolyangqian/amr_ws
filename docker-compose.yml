@@ -1,0 +1,37 @@
+services:
+  # Service 1: Container utama untuk membangun & menjalankan aplikasi ROS 2 AMR
+  amr_ros2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amr_ros2
+    network_mode: host
+    privileged: true
+    ipc: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - CYCLONEDDS_URI=/home/dev/amr_ws/cyclonedds.xml
+    volumes:
+      - .:/home/dev/amr_ws
+      - /dev:/dev
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    working_dir: /home/dev/amr_ws
+    # Secara default, build workspace lalu panggil bringup dengan use_teensy:=true
+    command: bash -c "colcon build --symlink-install && ros2 launch amr_bringup bringup.launch.py use_teensy:=true"
+    depends_on:
+      - micro-ros-agent
+    restart: unless-stopped
+
+  # Service 2: micro-ROS Agent mandiri yang menangani Teensy
+  micro-ros-agent:
+    image: microros/micro-ros-agent:humble
+    container_name: micro_ros_agent
+    network_mode: host
+    privileged: true
+    volumes:
+      - /dev:/dev
+    # Menghubungkan ke port Teensy MCU (symlink /dev/amr_mcu)
+    command: serial --dev /dev/amr_mcu -b 115200
+    restart: unless-stopped

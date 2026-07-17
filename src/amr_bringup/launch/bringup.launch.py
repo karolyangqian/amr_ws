@@ -54,17 +54,7 @@ def generate_launch_description():
         output='screen',
     )
 
-    # microros agent
-    microros_agent = ExecuteProcess(
-        cmd=[
-            'docker', 'run', '--rm', '--net=host',
-            '--device', LaunchConfiguration('teensy_port'),
-            'microros/micro-ros-agent:humble',
-            'serial', '--dev', LaunchConfiguration('teensy_port'), '-b', '115200',
-        ],
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('use_teensy')),
-    )
+
 
     # Front LiDAR langsung ke /front_scan + pakai rear + merger
     lidar_front = LifecycleNode(
@@ -223,7 +213,6 @@ def generate_launch_description():
 
     return LaunchDescription(args + [
         chmod_ports,
-        microros_agent,
         rsp,
         jsp,
         lidar_front,

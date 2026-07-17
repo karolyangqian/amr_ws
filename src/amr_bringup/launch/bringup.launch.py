@@ -2,7 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, TimerAction
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
@@ -14,6 +14,7 @@ def generate_launch_description():
     pkg_desc  = get_package_share_directory('amr_description')
     pkg_lidar = get_package_share_directory('ydlidar_ros2_driver')
     pkg_merger = get_package_share_directory('ros2_laser_scan_merger')
+    pkg_discovery = get_package_share_directory('amr_discovery')
 
     urdf_file        = os.path.join(pkg_desc, 'urdf', 'amr.urdf.xacro')
     front_lidar_yaml = os.path.join(pkg_desc, 'config', 'front_lidar.yaml')
@@ -211,6 +212,12 @@ def generate_launch_description():
     # Delay 3 detik agar chmod dan node lain selesai init sebelum ZLAC konek
     zlac_delayed = TimerAction(period=3.0, actions=[zlac_driver])
 
+    discovery_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_discovery, 'launch', 'discovery.launch.py')
+        )
+    )
+
     return LaunchDescription(args + [
         chmod_ports,
         rsp,
@@ -228,4 +235,5 @@ def generate_launch_description():
         pc_to_scan,
         scan_relay,
         zlac_delayed,
+        discovery_launch,
     ])

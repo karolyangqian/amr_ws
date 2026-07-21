@@ -230,7 +230,7 @@ def generate_launch_description():
         imu_fixer,
         cmd_vel_inverter,
         ekf,
-        estop,
+        # estop,
         imu_static_tf,
         pc_to_scan,
         scan_relay,

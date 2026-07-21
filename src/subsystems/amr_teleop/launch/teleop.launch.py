@@ -30,7 +30,7 @@ def generate_launch_description():
         # Keyboard teleop: keyboard → /cmd_vel
         # Jalankan di terminal yang sama (butuh stdin interaktif)
         Node(
-            package='amr_hardware',
+            package='amr_teleop',
             executable='teleop_keyboard_node',
             name='teleop_keyboard_node',
             parameters=[{

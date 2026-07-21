@@ -1,17 +1,15 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>amr_odom</name>
+  <name>amr_safety</name>
   <version>0.0.0</version>
-  <description>Wheel encoder odometry node for ZLAC8015D</description>
-  <maintainer email="zulfan.andria@gmail.com">zulfan</maintainer>
+  <description>TODO: Package description</description>
+  <maintainer email="karolyangqian14@gmail.com">karol</maintainer>
   <license>Apache-2.0</license>
-
   <depend>rclpy</depend>
-  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>tf2_ros</depend>
-  <depend>amr_hardware</depend>
+  <depend>std_msgs</depend>
   <depend>amr_msgs</depend>
 
   <test_depend>ament_copyright</test_depend>

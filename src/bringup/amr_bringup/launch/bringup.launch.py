@@ -110,7 +110,7 @@ def generate_launch_description():
 
     # Odom: IMU gyro + cmd_vel_raw dead-reckoning
     odom_node = Node(
-        package='amr_hardware',
+        package='amr_odom',
         executable='odom_node',
         name='odom_node',
         parameters=[{
@@ -124,7 +124,7 @@ def generate_launch_description():
     )
 
     wheel_odom = Node(
-        package='amr_hardware',
+        package='amr_odom',
         executable='wheel_travel_odom_node',
         name='wheel_travel_odom_node',
         parameters=[{
@@ -161,7 +161,7 @@ def generate_launch_description():
     )
 
     estop = Node(
-        package='amr_hardware',
+        package='amr_safety',
         executable='emergency_stop_node',
         name='emergency_stop_node',
         parameters=[{

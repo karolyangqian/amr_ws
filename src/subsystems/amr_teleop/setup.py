@@ -1,6 +1,9 @@
 from setuptools import find_packages, setup
 
-package_name = 'imu_serial'
+import os
+from glob import glob
+
+package_name = 'amr_teleop'
 
 setup(
     name=package_name,
@@ -10,14 +13,14 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/imu.launch.py']),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='zulfan',
-    maintainer_email='zulfan.andria@gmail.com',
+    maintainer='karol',
+    maintainer_email='karolyangqian14@gmail.com',
     description='TODO: Package description',
-    license='TODO: License declaration',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',
@@ -25,8 +28,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'imu_serial_node = imu_serial.imu_serial_node:main',
+            'teleop_keyboard_node = amr_teleop.teleop_keyboard_node:main',
+            'teleop_wifi_node = amr_teleop.teleop_wifi_node:main',
         ],
     },
 )
-

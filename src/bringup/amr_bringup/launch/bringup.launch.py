@@ -15,10 +15,11 @@ def generate_launch_description():
     pkg_lidar = get_package_share_directory('ydlidar_ros2_driver')
     pkg_merger = get_package_share_directory('ros2_laser_scan_merger')
     pkg_discovery = get_package_share_directory('amr_discovery')
+    pkg_hardware = get_package_share_directory('amr_hardware')
 
     urdf_file        = os.path.join(pkg_desc, 'urdf', 'amr.urdf.xacro')
-    front_lidar_yaml = os.path.join(pkg_desc, 'config', 'front_lidar.yaml')
-    rear_lidar_yaml  = os.path.join(pkg_desc,   'config', 'rear_lidar.yaml')
+    front_lidar_yaml = os.path.join(pkg_hardware, 'config', 'front_lidar.yaml')
+    rear_lidar_yaml  = os.path.join(pkg_hardware, 'config', 'rear_lidar.yaml')
     ekf_yaml         = os.path.join(pkg_desc, 'config', 'ekf.yaml')
     merger_config    = os.path.join(pkg_merger, 'config', 'params.yaml')
 

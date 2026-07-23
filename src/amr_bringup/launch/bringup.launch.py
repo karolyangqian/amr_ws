@@ -34,6 +34,12 @@ def generate_launch_description():
         DeclareLaunchArgument('use_camera',        default_value='false'),
     ]
 
+    # run micro ros agent
+    ExecuteProcess(
+        cmd=['ros2', 'run', 'micro_ros_agent', 'micro_ros_agent', 'serial', '--dev', '/dev/ttyACM0', '-b', '115200'],
+        output='screen'
+    ),
+
     # Beri akses ke semua port secara otomatis saat launch
     chmod_ports = ExecuteProcess(
         cmd=['bash', '-c',
@@ -98,7 +104,6 @@ def generate_launch_description():
         name='pointcloud_to_laserscan',
         parameters=[merger_config],
         output='screen',
-        condition=IfCondition(LaunchConfiguration('use_camera')),   
     )
 
     scan_relay = Node(
@@ -108,21 +113,7 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Odom: IMU gyro + cmd_vel_raw dead-reckoning
-    odom_node = Node(
-        package='amr_hardware',
-        executable='odom_node',
-        name='odom_node',
-        parameters=[{
-            'wheel_base': LaunchConfiguration('wheel_separation'),
-            'wheel_circ': 0.359,
-            'publish_tf': False,
-            'odom_frame': 'odom',
-            'base_frame': 'base_link',
-        }],
-        output='screen',
-    )
-
+    # Odom: encoder-based wheel travel (sumber odometri utama)
     wheel_odom = Node(
         package='amr_hardware',
         executable='wheel_travel_odom_node',
@@ -130,17 +121,9 @@ def generate_launch_description():
         parameters=[{
             'wheel_separation': 0.445,
             'odom_frame':       'odom',
-            'base_frame':       'base_footprint',
-            'publish_tf':       True,
+            'base_frame':       'base_link',
+            'publish_tf':       False,
         }],
-        output='screen',
-    )
-
-    imu_fixer = Node(
-        package='amr_hardware',
-        executable='imu_fixer_node',
-        name='imu_fixer_node',
-        parameters=[{'frame_id': 'imu_link'}],
         output='screen',
     )
 
@@ -225,7 +208,6 @@ def generate_launch_description():
         lidar_front,
         lidar_rear,
         laser_merger,
-        odom_node,
         wheel_odom,
         imu_fixer,
         cmd_vel_inverter,

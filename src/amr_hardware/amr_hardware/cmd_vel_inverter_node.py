@@ -40,7 +40,7 @@ class CmdVelInverterNode(Node):
         self.target_ang_v = 0.0
 
         # Subscriptions & Publishers
-        self.create_subscription(Twist, '/cmd_vel_nav2',      self._cmd_cb,   10)
+        self.create_subscription(Twist, '/cmd_vel_nav',      self._cmd_cb,   10)
         self.create_subscription(Bool,  '/emergency_stop',    self._estop_cb, 10)
         self._pub = self.create_publisher(Twist, '/cmd_vel', 10)
 
@@ -53,13 +53,15 @@ class CmdVelInverterNode(Node):
             'cmd_vel_inverter_node started dengan S-Curve Profiler (50Hz) — '
             '/cmd_vel_nav2 → S-Curve Invert → /cmd_vel')
 
+    # turn on for auto emergency stop logic
     def _estop_cb(self, msg: Bool):
-        self._estop = msg.data
-        if self._estop:
-            self.get_logger().warn("EMERGENCY STOP AKTIF! Menurunkan kecepatan dengan S-Curve ke 0.")
-            # Langsung paksa target ke nol, S-curve timer yang akan melakukan deselerasi mulus
-            self.target_lin_v = 0.0
-            self.target_ang_v = 0.0
+        # self._estop = msg.data
+        # if self._estop:
+        #     self.get_logger().warn("EMERGENCY STOP AKTIF! Menurunkan kecepatan dengan S-Curve ke 0.")
+        #     # Langsung paksa target ke nol, S-curve timer yang akan melakukan deselerasi mulus
+        #     self.target_lin_v = 0.0
+        #     self.target_ang_v = 0.0
+        pass
 
     def _cmd_cb(self, msg: Twist):
         if self._estop:

@@ -121,7 +121,7 @@ class WheelTravelOdomNode(Node):
 
         delta_s     = (delta_l + delta_r) / 2.0
         # delta_theta = (delta_r - delta_l) / self.wheel_sep  # data[0]=roda kanan fisik, data[1]=kiri
-        delta_theta = (delta_l - delta_r) / self.wheel_sep
+        delta_theta = (delta_r - delta_l) / self.wheel_sep
         theta_mid   = self.theta + delta_theta / 2.0
 
         self.x     += delta_s * math.cos(theta_mid)

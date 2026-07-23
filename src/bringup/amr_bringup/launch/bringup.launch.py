@@ -33,7 +33,6 @@ def generate_launch_description():
         DeclareLaunchArgument('teensy_port',       default_value='/dev/amr_mcu'),
         DeclareLaunchArgument('wheel_separation',  default_value='0.445'),
         DeclareLaunchArgument('use_teensy',        default_value='true'),
-        DeclareLaunchArgument('use_camera',        default_value='false'),
     ]
 
     # Beri akses ke semua port secara otomatis saat launch
@@ -99,8 +98,7 @@ def generate_launch_description():
         executable='pointcloud_to_laserscan_node',
         name='pointcloud_to_laserscan',
         parameters=[merger_config],
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('use_camera')),   
+        output='screen',   
     )
 
     scan_relay = Node(

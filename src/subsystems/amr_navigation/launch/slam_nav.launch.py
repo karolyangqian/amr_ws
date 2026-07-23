@@ -8,10 +8,10 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    pkg_desc = get_package_share_directory('amr_description')
+    pkg_nav  = get_package_share_directory('amr_navigation')
     pkg_nav2 = get_package_share_directory('nav2_bringup')
 
-    nav2_params = os.path.join(pkg_desc, 'config', 'nav2_params.yaml')
+    nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
 
@@ -24,7 +24,7 @@ def generate_launch_description():
     # SLAM toolbox pakai params kustom kita (mapper_params_online_async.yaml)
     slam = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_desc, 'launch', 'amr_slam.launch.py')
+            os.path.join(pkg_nav, 'launch', 'amr_slam.launch.py')
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,

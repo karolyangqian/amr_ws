@@ -10,11 +10,11 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg_desc = get_package_share_directory('amr_description')
+    pkg_nav  = get_package_share_directory('amr_navigation')
     pkg_nav2 = get_package_share_directory('nav2_bringup')
 
-    default_map = os.path.join(pkg_desc, 'maps', 'peta_ruangan_baru.yaml')
-    nav2_params = os.path.join(pkg_desc, 'config', 'nav2_params.yaml')
+    default_map = os.path.join(pkg_nav, 'maps', 'peta_ruangan_baru.yaml')
+    nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
 
     map_arg = DeclareLaunchArgument(
         'map',
@@ -32,7 +32,7 @@ def generate_launch_description():
         'rviz', default_value='true', description='Launch RViz navigation view'
     )
 
-    rviz_cfg = os.path.join(pkg_desc, 'rviz', 'navigation.rviz')
+    rviz_cfg = os.path.join(pkg_nav, 'rviz', 'navigation.rviz')
 
     # Nav2 bringup lengkap: map_server + AMCL + navigation stack
     nav2 = IncludeLaunchDescription(

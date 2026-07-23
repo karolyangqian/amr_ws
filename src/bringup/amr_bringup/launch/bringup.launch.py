@@ -16,11 +16,12 @@ def generate_launch_description():
     pkg_merger = get_package_share_directory('ros2_laser_scan_merger')
     pkg_discovery = get_package_share_directory('amr_discovery')
     pkg_hardware = get_package_share_directory('amr_hardware')
+    pkg_nav      = get_package_share_directory('amr_navigation')
 
     urdf_file        = os.path.join(pkg_desc, 'urdf', 'amr.urdf.xacro')
     front_lidar_yaml = os.path.join(pkg_hardware, 'config', 'front_lidar.yaml')
     rear_lidar_yaml  = os.path.join(pkg_hardware, 'config', 'rear_lidar.yaml')
-    ekf_yaml         = os.path.join(pkg_desc, 'config', 'ekf.yaml')
+    ekf_yaml         = os.path.join(pkg_nav, 'config', 'ekf.yaml')
     merger_config    = os.path.join(pkg_merger, 'config', 'params.yaml')
 
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)

@@ -3,17 +3,23 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import LifecycleNode, Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
     pkg_hardware = get_package_share_directory('amr_hardware')
     pkg_merger = get_package_share_directory('ros2_laser_scan_merger')
+    pkg_desc  = get_package_share_directory('amr_description')
 
+    urdf_file        = os.path.join(pkg_desc, 'urdf', 'amr.urdf.xacro')
     front_lidar_yaml = os.path.join(pkg_hardware, 'config', 'front_lidar.yaml')
     rear_lidar_yaml  = os.path.join(pkg_hardware, 'config', 'rear_lidar.yaml')
     merger_config    = os.path.join(pkg_merger, 'config', 'params.yaml')
+
+    robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
+
 
     front_lidar_port_arg = DeclareLaunchArgument('front_lidar_port', default_value='/dev/amr_lidar_front')
     rear_lidar_port_arg  = DeclareLaunchArgument('rear_lidar_port',  default_value='/dev/amr_lidar_rear')

@@ -158,7 +158,41 @@ def generate_launch_description():
     )
 
     # ============================================================
-    # 8. LIFECYCLE MANAGER LOCALIZATION (map_server + amcl)
+    # 8. Waypoint follower
+    # ============================================================
+    wp_follower_node = LifecycleNode(
+        package='nav2_waypoint_follower',
+        executable='waypoint_follower',
+        name='waypoint_follower', 
+        namespace='',
+        output='screen',
+        parameters=[
+            nav2_params,
+            {'use_sim_time': use_sim_time}
+        ],
+    )
+
+    # ============================================================
+    # 9. VEL SMOOTHER
+    # ============================================================
+    vel_smoother_node = LifecycleNode(
+        package='nav2_velocity_smoother',
+        executable='velocity_smoother',
+        name='velocity_smoother', 
+        namespace='',
+        output='screen',
+        parameters=[
+            nav2_params,
+            {'use_sim_time': use_sim_time}
+        ],
+        remappings=[
+            ('cmd_vel', 'cmd_vel_nav'), 
+            ('cmd_vel_smoothed', 'cmd_vel')
+        ]
+    )
+
+    # ============================================================
+    # 10. LIFECYCLE MANAGER LOCALIZATION (map_server + amcl)
     # ============================================================
     lifecycle_manager_localization = Node(
         package='nav2_lifecycle_manager',
@@ -180,7 +214,7 @@ def generate_launch_description():
     )
 
     # ============================================================
-    # 9. LIFECYCLE MANAGER NAVIGATION (stack navigasi)
+    # 11. LIFECYCLE MANAGER NAVIGATION (stack navigasi)
     # ============================================================
     lifecycle_manager_navigation = Node(
         package='nav2_lifecycle_manager',
@@ -197,6 +231,8 @@ def generate_launch_description():
                 'smoother_server',
                 'behavior_server',
                 'bt_navigator',
+                'waypoint_follower',  
+                'velocity_smoother',  
             ],
             'bond_timeout': 20.0,
             'attempt_respawn_reconnection': True,
@@ -235,6 +271,8 @@ def generate_launch_description():
         smoother_server_node,
         behavior_server_node,
         bt_navigator_node,
+        wp_follower_node,
+        vel_smoother_node,
 
         # Lifecycle Managers
         lifecycle_manager_localization,

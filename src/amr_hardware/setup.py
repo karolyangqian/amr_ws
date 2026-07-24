@@ -26,6 +26,7 @@ setup(
             'teleop_keyboard_node     = amr_hardware.teleop_keyboard_node:main',
             'teleop_wifi_node         = amr_hardware.teleop_wifi_node:main',
             'emergency_stop_node      = amr_hardware.emergency_stop_node:main',
+            'map_switcher     = amr_hardware.map_switcher_node:main',
             # Node baru untuk arsitektur Teensy micro-ROS + BNO08x
             'odom_node                = amr_hardware.odom_node:main',
             'imu_fixer_node           = amr_hardware.imu_fixer_node:main',

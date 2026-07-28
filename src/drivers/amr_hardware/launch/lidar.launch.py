@@ -24,6 +24,20 @@ def generate_launch_description():
     front_lidar_port_arg = DeclareLaunchArgument('front_lidar_port', default_value='/dev/amr_lidar_front')
     rear_lidar_port_arg  = DeclareLaunchArgument('rear_lidar_port',  default_value='/dev/amr_lidar_rear')
 
+    jsp = Node (
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        parameters=[{'robot_description': robot_desc}],
+        output='screen',
+    )
+
+    rsp = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        parameters=[{'robot_description': robot_desc, 'use_sim_time': False}],
+        output='screen',
+    )
+
     ydlidar_front_lifecycle_node = LifecycleNode(
         package='ydlidar_ros2_driver',
         executable='ydlidar_ros2_driver_node',
@@ -68,6 +82,9 @@ def generate_launch_description():
     return LaunchDescription([
         front_lidar_port_arg,
         rear_lidar_port_arg,
+        
+        jsp,
+        rsp,
 
         # Front LiDAR (Tmini Pro) -> /front_scan
         ydlidar_front_lifecycle_node,

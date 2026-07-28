@@ -131,7 +131,7 @@ def generate_launch_description():
             'wheel_separation': 0.445,
             'odom_frame':       'odom',
             'base_frame':       'base_footprint',
-            'publish_tf':       True,
+            'publish_tf':       False,
         }],
         output='screen',
     )
@@ -228,7 +228,7 @@ def generate_launch_description():
         odom_node,
         wheel_odom,
         imu_fixer,
-        cmd_vel_inverter,
+        # cmd_vel_inverter,
         ekf,
         # estop,
         imu_static_tf,

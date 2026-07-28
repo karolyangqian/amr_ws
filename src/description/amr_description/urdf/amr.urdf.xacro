@@ -5,9 +5,9 @@
        base_link mesh: ukuran 1.0x1.0x0.519, bottom di Z=-0.118 (sebelum kompensasi). -->
 
   <!-- ============ PROPERTIES ============ -->
-  <xacro:property name="body_length" value="0.66"/>
-  <xacro:property name="body_width"  value="0.62"/>
-  <xacro:property name="body_height" value="0.200"/>
+  <xacro:property name="body_length" value="1.0"/>
+  <xacro:property name="body_width"  value="1.0"/>
+  <xacro:property name="body_height" value="0.27"/>
   <xacro:property name="body_mass"   value="80.0"/>
 
   <!-- Shift visual base mesh ke atas: bottom mesh asli ada di Z=-0.118 setelah rotasi -->
@@ -20,9 +20,9 @@
 
   <xacro:property name="caster_radius" value="0.065"/>
   <xacro:property name="caster_mass"   value="0.45"/>
-  <xacro:property name="caster_x_front" value=" 0.21"/>
-  <xacro:property name="caster_x_rear"  value="-0.29"/>
-  <xacro:property name="caster_y_outer" value=" 0.225"/>
+  <xacro:property name="caster_x_front" value=" 0.23"/>
+  <xacro:property name="caster_x_rear"  value="-0.4"/>
+  <xacro:property name="caster_y_outer" value=" 0.29"/>
 
   <!-- Lidar di pojok diagonal body, sedikit di atas top plate -->
   <xacro:property name="lidar_x_off" value="0.45"/>
@@ -216,7 +216,7 @@
     <link name="${name}_link">
       <visual>
         <origin xyz="0 0 -0.03" rpy="1.5708 0 ${yaw+3.14159}"/>
-        <!-- <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry> -->
+        <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry>
         <material name="lidar_blue"><color rgba="0.0 0.2 0.8 1.0"/></material>
       </visual>
       <collision>

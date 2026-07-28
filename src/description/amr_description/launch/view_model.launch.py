@@ -10,7 +10,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     pkg = get_package_share_directory('amr_description')
     urdf_file = os.path.join(pkg, 'urdf', 'amr.urdf.xacro')
-    rviz_file = os.path.join(pkg, 'rviz', 'amr_config.rviz')
+    rviz_file = os.path.join(pkg, 'rviz', 'amr_model_view.rviz')
 
     rviz_arg = DeclareLaunchArgument(
         'rviz_config',

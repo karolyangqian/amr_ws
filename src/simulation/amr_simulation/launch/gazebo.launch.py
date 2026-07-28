@@ -15,6 +15,9 @@ def generate_launch_description():
     urdf_file = os.path.join(pkg_desc, 'urdf', 'amr.urdf.xacro')
     rviz_file = os.path.join(pkg_desc, 'rviz', 'amr_config.rviz')
 
+    pkg_sim             = get_package_share_directory('amr_simulation')
+    bridge_config = os.path.join(pkg_sim, 'config', 'gz_bridge.yaml')
+
     pkg_desc_share_parent = os.path.abspath(os.path.join(get_package_share_directory('amr_description'), '..'))
                                                                                       
     set_gz_resource_path = SetEnvironmentVariable(                                    
@@ -60,8 +63,6 @@ def generate_launch_description():
         ],
         output='screen'
     )
-
-    bridge_config = os.path.join(pkg_desc, 'config', 'gz_bridge.yaml')
 
     # ROS-Gazebo Bridge
     bridge = Node(

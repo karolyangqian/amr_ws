@@ -23,6 +23,7 @@ def generate_launch_description():
     rear_lidar_yaml  = os.path.join(pkg_hardware, 'config', 'rear_lidar.yaml')
     ekf_yaml         = os.path.join(pkg_nav, 'config', 'ekf.yaml')
     merger_config    = os.path.join(pkg_merger, 'config', 'params.yaml')
+    simple_scan_merger_config = os.path.join(pkg_merger, 'config', 'simple_scan_merger.yaml')
 
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
 
@@ -88,6 +89,16 @@ def generate_launch_description():
         executable='ros2_laser_scan_merger',
         name='ros2_laser_scan_merger',
         parameters=[merger_config],
+        output='screen',
+        respawn=True,
+        respawn_delay=2.0,
+    )
+
+    simple_scan_merger = Node(
+        package='ros2_laser_scan_merger',
+        executable='simple_scan_merger',
+        name='simple_scan_merger',
+        parameters=[simple_scan_merger_config],
         output='screen',
         respawn=True,
         respawn_delay=2.0,
@@ -224,7 +235,8 @@ def generate_launch_description():
         jsp,
         lidar_front,
         lidar_rear,
-        laser_merger,
+        # laser_merger,
+        simple_scan_merger,
         odom_node,
         wheel_odom,
         imu_fixer,
@@ -232,7 +244,7 @@ def generate_launch_description():
         ekf,
         # estop,
         imu_static_tf,
-        pc_to_scan,
+        # pc_to_scan,
         scan_relay,
         zlac_delayed,
         discovery_launch,

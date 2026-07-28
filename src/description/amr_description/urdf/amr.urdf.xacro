@@ -5,37 +5,37 @@
        base_link mesh: ukuran 1.0x1.0x0.519, bottom di Z=-0.118 (sebelum kompensasi). -->
 
   <!-- ============ PROPERTIES ============ -->
-  <xacro:property name="body_length" value="1.00"/>
-  <xacro:property name="body_width"  value="1.00"/>
-  <xacro:property name="body_height" value="0.519"/>
+  <xacro:property name="body_length" value="0.66"/>
+  <xacro:property name="body_width"  value="0.62"/>
+  <xacro:property name="body_height" value="0.200"/>
   <xacro:property name="body_mass"   value="80.0"/>
 
   <!-- Shift visual base mesh ke atas: bottom mesh asli ada di Z=-0.118 setelah rotasi -->
   <xacro:property name="base_mesh_z_shift" value="0.118"/>
 
-  <xacro:property name="wheel_radius"     value="0.105"/>
-  <xacro:property name="wheel_width"      value="0.04"/>
+  <xacro:property name="wheel_radius"     value="0.065"/>
+  <xacro:property name="wheel_width"      value="0.055"/>
   <xacro:property name="wheel_mass"       value="3.0"/>
-  <xacro:property name="wheel_separation" value="0.58"/>
+  <xacro:property name="wheel_separation" value="0.45"/>
 
-  <xacro:property name="caster_radius" value="0.05"/>
+  <xacro:property name="caster_radius" value="0.065"/>
   <xacro:property name="caster_mass"   value="0.45"/>
-  <xacro:property name="caster_x_front" value=" 0.29"/>
+  <xacro:property name="caster_x_front" value=" 0.21"/>
   <xacro:property name="caster_x_rear"  value="-0.29"/>
-  <xacro:property name="caster_y_outer" value=" 0.29"/>
+  <xacro:property name="caster_y_outer" value=" 0.225"/>
 
   <!-- Lidar di pojok diagonal body, sedikit di atas top plate -->
   <xacro:property name="lidar_x_off" value="0.45"/>
   <xacro:property name="lidar_y_off" value="0.45"/>
-  <xacro:property name="lidar_z_off" value="0.25"/>
+  <xacro:property name="lidar_z_off" value="0.2"/>
 
-  <xacro:property name="lidar_x"    value="0.064"/>
-  <xacro:property name="lidar_y"    value="0.064"/>
-  <xacro:property name="lidar_z"    value="0.065"/>
+  <xacro:property name="lidar_x"    value="0.035"/>
+  <xacro:property name="lidar_y"    value="0.035"/>
+  <xacro:property name="lidar_z"    value="0.01"/>
   <xacro:property name="lidar_mass" value="0.10"/>
 
   <xacro:property name="mesh_pkg" value="package://amr_description/meshes"/>
-  <xacro:property name="mesh_rpy_base" value="1.5708 0 -1.5708"/>
+  <xacro:property name="mesh_rpy_base" value="1.5708 0 1.5708"/>
 
   <!-- ============ INERTIA MACROS ============ -->
   <xacro:macro name="box_inertia" params="m x y z">
@@ -102,7 +102,7 @@
   <xacro:macro name="drive_wheel" params="name reflect mesh_file y_shift">
     <link name="wheel_${name}_link">
       <visual>
-        <origin xyz="0 ${y_shift} -0.014" rpy="${mesh_rpy_base}"/>
+        <origin xyz="0 ${y_shift} 0" rpy="${mesh_rpy_base}"/>
         <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry>
         <material name="wheel_black"><color rgba="0.15 0.15 0.15 1.0"/></material>
       </visual>
@@ -130,7 +130,7 @@
   <xacro:macro name="caster_wheel_mesh" params="name xp yp mesh_file">
     <link name="caster_${name}_link">
       <visual>
-        <origin xyz="0 0 -0.014" rpy="${mesh_rpy_base}"/>
+        <origin xyz="0 0 0" rpy="${mesh_rpy_base}"/>
         <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry>
         <material name="caster_silver"><color rgba="0.75 0.75 0.75 1.0"/></material>
       </visual>
@@ -140,7 +140,7 @@
     <joint name="caster_${name}_joint" type="fixed">
       <parent link="base_link"/>
       <child  link="caster_${name}_link"/>
-      <origin xyz="${xp} ${yp} ${-wheel_radius+caster_radius}" rpy="0 0 0"/>
+      <origin xyz="${xp} ${yp} 0" rpy="0 0 0"/>
     </joint>
     <gazebo reference="caster_${name}_link">
       <mu1>0.0</mu1><mu2>0.0</mu2><material>Gazebo/DarkGrey</material>
@@ -215,12 +215,12 @@
   <xacro:macro name="lidar_sensor" params="name xp yp yaw topic_name mesh_file">
     <link name="${name}_link">
       <visual>
-        <origin xyz="0 0 -0.032" rpy="${mesh_rpy_base}"/>
-        <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry>
+        <origin xyz="0 0 -0.03" rpy="1.5708 0 ${yaw+3.14159}"/>
+        <!-- <geometry><mesh filename="${mesh_pkg}/${mesh_file}"/></geometry> -->
         <material name="lidar_blue"><color rgba="0.0 0.2 0.8 1.0"/></material>
       </visual>
       <collision>
-        <geometry><box size="${lidar_x} ${lidar_y} ${lidar_z}"/></geometry>
+        <geometry><cylinder radius="0.0175" length="${lidar_z}"/></geometry>
       </collision>
       <inertial>
         <mass value="${lidar_mass}"/>
@@ -254,12 +254,12 @@
   </xacro:macro>
 
   <xacro:lidar_sensor name="lidar_front_right"
-                      xp=" 0.31" yp="-0.32" yaw="${-pi/4}"
-                      topic_name="scan_front" mesh_file="lidar1_link.stl"/>
+                      xp="0.32" yp="-0.31" yaw="${-pi/4}"
+                      topic_name="front_scan" mesh_file="lidar1_link.stl"/>
 
   <xacro:lidar_sensor name="lidar_rear_left"
-                      xp="-0.31" yp=" 0.42" yaw="${3*pi/4}"
-                      topic_name="scan_rear" mesh_file="lidar2_link.stl"/>
+                      xp="-0.42" yp="0.31" yaw="${3*pi/4}"
+                      topic_name="rear_scan" mesh_file="lidar2_link.stl"/>
 
   <!-- ============ IMU ============ -->
   <xacro:macro name="imu_sensor" params="name xp yp">

@@ -1,8 +1,4 @@
 from setuptools import find_packages, setup
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/refactor/tidy-up
 import os
 from glob import glob
 
@@ -15,10 +11,7 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-<<<<<<< HEAD
-=======
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
->>>>>>> origin/refactor/tidy-up
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
     ],
     install_requires=['setuptools'],
@@ -29,27 +22,12 @@ setup(
     license='Apache-2.0',
     entry_points={
         'console_scripts': [
-<<<<<<< HEAD
-            'zlac_driver_node         = amr_hardware.zlac_driver_node:main',
             'teensy_bridge_node       = amr_hardware.teensy_bridge_node:main',
-            'teleop_keyboard_node     = amr_hardware.teleop_keyboard_node:main',
-            'teleop_wifi_node         = amr_hardware.teleop_wifi_node:main',
-            'emergency_stop_node      = amr_hardware.emergency_stop_node:main',
-            'map_switcher     = amr_hardware.map_switcher_node:main',
-            # Node baru untuk arsitektur Teensy micro-ROS + BNO08x
-            'odom_node                = amr_hardware.odom_node:main',
-            'imu_fixer_node           = amr_hardware.imu_fixer_node:main',
-            'cmd_vel_inverter_node    = amr_hardware.cmd_vel_inverter_node:main',
-            'battery_monitor_node     = amr_hardware.battery_monitor_node:main',
-            'scan_relay_node          = amr_hardware.scan_relay_node:main',
-            'wheel_travel_odom_node   = amr_hardware.wheel_travel_odom_node:main',
-=======
             'zlac_driver_node         = amr_hardware.base.zlac_driver_node:main',
             'cmd_vel_inverter_node    = amr_hardware.base.cmd_vel_inverter_node:main',
             'battery_monitor_node     = amr_hardware.battery.battery_monitor_node:main',
             'imu_fixer_node           = amr_hardware.imu.imu_fixer_node:main',
             'scan_relay_node          = amr_hardware.lidar.scan_relay_node:main',
->>>>>>> origin/refactor/tidy-up
         ],
     },
 )

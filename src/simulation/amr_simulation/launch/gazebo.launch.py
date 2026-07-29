@@ -2,6 +2,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
@@ -30,6 +31,12 @@ def generate_launch_description():
         # default_value='empty.sdf',
         default_value=os.path.join(pkg_sim, 'worlds', 'indoor.sdf'),
         description='Gazebo Sim world file or Fuel URI'
+    )
+
+    use_rviz_arg = DeclareLaunchArgument(
+        'use_rviz',
+        default_value='true',
+        description='Start RViz2 if true'
     )
 
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
@@ -79,12 +86,14 @@ def generate_launch_description():
         name='rviz2',
         arguments=['-d', rviz_file],
         parameters=[{'use_sim_time': True}],
-        output='screen'
+        output='screen',
+        condition=IfCondition(LaunchConfiguration('use_rviz'))
     )
 
     return LaunchDescription([
         set_gz_resource_path,
         world_arg,
+        use_rviz_arg,
         gz_sim,
         # robot_state_publisher,
         spawn_entity,

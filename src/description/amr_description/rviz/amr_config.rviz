@@ -10,7 +10,6 @@ Panels:
         - /TF1/Frames1
         - /LaserScan2/Topic1
         - /Map1/Update Topic1
-        - /LaserScan3
       Splitter Ratio: 0.6097561120986938
     Tree Height: 383
   - Class: rviz_common/Selection
@@ -112,10 +111,12 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+          Value: true
         lidar_rear_left_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+          Value: true
         wheel_left_link:
           Alpha: 1
           Show Axes: false
@@ -138,19 +139,19 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: false
+        All Enabled: true
         base_footprint:
-          Value: false
+          Value: true
         base_link:
           Value: true
         caster_front_left_link:
-          Value: false
+          Value: true
         caster_front_right_link:
-          Value: false
+          Value: true
         caster_rear_left_link:
-          Value: false
+          Value: true
         caster_rear_right_link:
-          Value: false
+          Value: true
         chassis_link:
           Value: true
         imu_link:
@@ -162,38 +163,39 @@ Visualization Manager:
         odom:
           Value: true
         wheel_left_link:
-          Value: false
+          Value: true
         wheel_right_link:
-          Value: false
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
-      Show Names: false
+      Show Names: true
       Tree:
+        base_footprint:
+          base_link:
+            caster_front_left_link:
+              {}
+            caster_front_right_link:
+              {}
+            caster_rear_left_link:
+              {}
+            caster_rear_right_link:
+              {}
+            chassis_link:
+              {}
+            imu_link:
+              {}
+            lidar_front_right_link:
+              {}
+            lidar_rear_left_link:
+              {}
+            wheel_left_link:
+              {}
+            wheel_right_link:
+              {}
         odom:
-          base_footprint:
-            base_link:
-              caster_front_left_link:
-                {}
-              caster_front_right_link:
-                {}
-              caster_rear_left_link:
-                {}
-              caster_rear_right_link:
-                {}
-              chassis_link:
-                {}
-              imu_link:
-                {}
-              lidar_front_right_link:
-                {}
-              lidar_rear_left_link:
-                {}
-              wheel_left_link:
-                {}
-              wheel_right_link:
-                {}
+          {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -429,4 +431,4 @@ Window Geometry:
     collapsed: true
   Width: 876
   X: 661
-  Y: 112
+  Y: 184

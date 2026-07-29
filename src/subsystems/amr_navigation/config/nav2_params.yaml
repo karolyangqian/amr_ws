@@ -140,54 +140,91 @@ controller_server:
       xy_goal_tolerance: 0.25
       yaw_goal_tolerance: 0.25
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: True
+
+      # ============= PLUGIN RPPC =============
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
       
-      # KECEPATAN (VELOCITY)
-      min_vel_x: 0.0
-      min_vel_y: 0.0
-      max_vel_x: 0.5
-      max_vel_y: 0.0
+      # KECEPATAN & AKSELERASI
+      desired_linear_vel: 0.5
+      min_approach_linear_velocity: 0.05
+      approach_velocity_scaling_dist: 0.6
+      max_linear_accel: 0.3               # Sesuai acc_lim_x
+      max_angular_accel: 0.2              # Sesuai acc_lim_theta
       
-      # Kecepatan rotasi
-      max_vel_theta: 0.25
-      min_speed_xy: 0.0
-      max_speed_xy: 0.5
-      min_speed_theta: 0.0
+      # LOOKAHEAD DISTANCE
+      lookahead_dist: 0.6
+      min_lookahead_dist: 0.3
+      max_lookahead_dist: 0.9
+      lookahead_time: 1.5
+      use_velocity_scaled_lookahead_dist: true
+
+      # ROTASI DI TEMPAT DENGAN KECEPATAN TERTENTU 
+      use_rotate_to_heading: true
+      rotate_to_heading_min_angle: 0.785  # (0.785 rad = 45 deg) Jika selisih sudut > 45 deg, v_x dipatok 0 dan robot langsung berputar di tempat
+      rotate_to_heading_angular_vel: 0.25 # Kecepatan rotasi di tempat
       
-      # AKSELERASI
-      acc_lim_x: 0.3
-      acc_lim_y: 0.0
-      acc_lim_theta: 0.2
-      decel_lim_x: -0.3
-      decel_lim_y: 0.0
-      decel_lim_theta: -0.2
+      # SCALING KECEPATAN
+      use_regulated_linear_velocity_scaling: true
+      use_cost_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 0.9
+      regulated_linear_scaling_min_speed: 0.1
       
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 20
-      sim_time: 1.7
-      linear_granularity: 0.05
-      angular_granularity: 0.025
+      # DETEKSI TABRAKAN LOKAL
+      use_collision_detection: true
+      max_allowed_time_to_collision_up_to_fast_velocity: 1.0
       
-      # TOLERANSI BERHENTI DI TUJUAN
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
-      trans_stopped_velocity: 0.1 
-      short_circuit_trajectory_evaluation: True
-      stateful: True
+      allow_reversing: false
+
+      # ============= PLUGIN DWBLocalPlanner =============
+      # plugin: "dwb_core::DWBLocalPlanner"
+      # debug_trajectory_details: True
       
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
-      RotateToGoal.lookahead_time: -1.0
+      # # KECEPATAN (VELOCITY)
+      # min_vel_x: 0.0
+      # min_vel_y: 0.0
+      # max_vel_x: 0.5
+      # max_vel_y: 0.0
+      
+      # # Kecepatan rotasi
+      # max_vel_theta: 0.25
+      # min_speed_xy: 0.0
+      # max_speed_xy: 0.5
+      # min_speed_theta: 0.0
+      
+      # # AKSELERASI
+      # acc_lim_x: 0.3
+      # acc_lim_y: 0.0
+      # acc_lim_theta: 0.2
+      # decel_lim_x: -0.3
+      # decel_lim_y: 0.0
+      # decel_lim_theta: -0.2
+      
+      # vx_samples: 20
+      # vy_samples: 5
+      # vtheta_samples: 20
+      # sim_time: 1.7
+      # linear_granularity: 0.05
+      # angular_granularity: 0.025
+      
+      # # TOLERANSI BERHENTI DI TUJUAN
+      # transform_tolerance: 0.2
+      # xy_goal_tolerance: 0.25
+      # trans_stopped_velocity: 0.1 
+      # short_circuit_trajectory_evaluation: True
+      # stateful: True
+      
+      # critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # BaseObstacle.scale: 0.02
+      # PathAlign.scale: 32.0
+      # PathAlign.forward_point_distance: 0.1
+      # GoalAlign.scale: 24.0
+      # GoalAlign.forward_point_distance: 0.1
+      # PathDist.scale: 32.0
+      # GoalDist.scale: 24.0
+      # RotateToGoal.scale: 32.0
+      # RotateToGoal.slowing_factor: 5.0
+      # RotateToGoal.lookahead_time: -1.0
 
 local_costmap:
   local_costmap:

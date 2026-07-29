@@ -13,7 +13,7 @@ def generate_launch_description():
     pkg_nav  = get_package_share_directory('amr_navigation')
     pkg_nav2 = get_package_share_directory('nav2_bringup')
 
-    default_map = os.path.join(pkg_nav, 'maps', 'peta_ruangan_baru.yaml')
+    default_map = os.path.join(pkg_nav, 'maps', 'gz_indoor.yaml')
     nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
 
     map_arg = DeclareLaunchArgument(
@@ -62,6 +62,6 @@ def generate_launch_description():
         map_arg,
         use_sim_time_arg,
         rviz_arg,
-        nav2,
         rviz,
+        nav2,
     ])

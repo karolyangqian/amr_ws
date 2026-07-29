@@ -49,6 +49,34 @@ Terminal ini sudah **otomatis di-source** dengan ROS 2 Humble dan workspace AMR.
 * **SLAM Toolbox**: `ros2 launch amr_description amr_slam.launch.py`
 * **RViz2**: `rviz2` (akan muncul di monitor host secara native)
 
+## DIRECTORY STRUCTURE, FORMATS, AND CONVENTIONS
+
+### SRC Directory Structure
+```
+./src
+├── bringup         # Bringup launch (`launch/`) and final robot YAML params (`config/<subsystem_name>/`)
+├── client          # Network communication protocols for telemetry and robot access via Flutter applications
+├── description     # Physical robot description (transforms, URDF, STL, etc.)
+├── drivers         # Packages managing hardware communication and hardware data preprocessing
+├── interfaces      # .msg, .action, .srv
+├── missions        # Robot mission configurations
+└── subsystems      # Robot subsystems: localization, navigation, SLAM, odometry, vision, safety, etc.
+```
+
+### Directory Hierarchy
+```
+./src
+├── <package_category_folder>
+│   └── <package_name>
+```
+
+### Naming Format
+| Folder Location | Package Name (package.xml) | Example
+| --- | --- | --- | 
+| `interfaces/` | `<robot>_<domain>_interfaces` | `amr_mission_interfaces` |
+| `drivers/` | `<vendor>_<device>_driver` or `<protocol>_bridge` | `teensy_mcu_driver` or `socketcan_bridge` |
+| `subsystems/` | `<robot>_<subsystem>` | `amr_navigation` |
+| `bringup/` | `<robot>_bringup` | `amr_bringup` |
 
 ## How to Setup (Native)
 1. Install all ROS 2 dependencies:
@@ -144,7 +172,9 @@ Terminal ini sudah **otomatis di-source** dengan ROS 2 Humble dan workspace AMR.
 3. In terminal 2, launch navigation
     ```bash
     ros2 launch amr_navigation navigation.launch.py \
-    map:=$HOME/peta_gudang_YYYYMMDD.yaml
+    map:=$HOME/map_YYYYMMDD.yaml \ 
+    slam:=false \ # if true, it will open slam_toolbox for SLAM
+    use_sim_time:=false # make it true if using gazebo, else keep it
     ```
     Then, you may:  
     a. In RViz, click **2D Pose Estimate**  

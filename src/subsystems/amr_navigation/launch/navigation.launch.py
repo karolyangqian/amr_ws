@@ -42,6 +42,12 @@ def generate_launch_description():
         description='Full path to the RViz configuration file'
     )
 
+    slam_arg = DeclareLaunchArgument(
+        'slam', 
+        default_value='false',
+        description='true = pakai /map dari slam_toolbox live; false = pakai saved map + AMCL'
+    ),
+
     # Launch Configurations
     use_sim_time = LaunchConfiguration('use_sim_time')
     show_rviz = LaunchConfiguration('rviz')
@@ -56,7 +62,7 @@ def generate_launch_description():
             'map':          LaunchConfiguration('map'),
             'use_sim_time': LaunchConfiguration('use_sim_time'),
             'params_file':  nav2_params,
-            'slam':         'False',
+            'slam':         LaunchConfiguration('slam'),
             'autostart':    'True',
         }.items()
     )
@@ -83,6 +89,7 @@ def generate_launch_description():
         use_sim_time_arg,
         rviz_arg,
         rviz_cfg_arg,
+        slam_arg,
 
         # nav2 bringup
         nav2,

@@ -209,10 +209,26 @@
     </plugin>
   </gazebo>
 
+  <!-- ============ VIRTUAL MERGED LASER FRAME ============ -->
+  <link name="laser_frame">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  </link>
+
+  <joint name="laser_frame_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="laser_frame"/>
+    <!-- Position the virtual merged frame at top plate center (Z = lidar_z_off) -->
+    <origin xyz="0.0 0.0 ${lidar_z_off}" rpy="0 0 0"/>
+  </joint>
+
   <!-- ============ LIDAR ============ -->
   <!-- Mesh lidar punya bottom di Z=0 setelah rotasi. Visual origin Z=-0.032 agar
        pusat mesh dimensi nempel di link origin. -->
   <xacro:macro name="lidar_sensor" params="name xp yp yaw topic_name mesh_file">
+  
     <link name="${name}_link">
       <visual>
         <origin xyz="0 0 -0.03" rpy="1.5708 0 ${yaw+3.14159}"/>

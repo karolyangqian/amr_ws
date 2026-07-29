@@ -46,10 +46,9 @@ class ImuFixerNode(Node):
         self.get_logger().info('imu_fixer_node started — /imu/data → /imu/data_fixed')
 
     def _imu_cb(self, msg: Imu):
-        msg.header.stamp    = self.get_clock().now().to_msg()
+        msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = self._frame_id
 
-        # Normalisasi quaternion — mencegah TF_DENORMALIZED_QUATERNION dan EKF NaN
         q = msg.orientation
         norm = math.sqrt(q.x**2 + q.y**2 + q.z**2 + q.w**2)
         if norm > 1e-6:

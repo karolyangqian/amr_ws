@@ -49,6 +49,34 @@ Terminal ini sudah **otomatis di-source** dengan ROS 2 Humble dan workspace AMR.
 * **SLAM Toolbox**: `ros2 launch amr_description amr_slam.launch.py`
 * **RViz2**: `rviz2` (akan muncul di monitor host secara native)
 
+## DIRECTORY STRUCTURE, FORMATS, AND CONVENTIONS
+
+### SRC Directory Structure
+```
+./src
+├── bringup         # Bringup launch (`launch/`) and final robot YAML params (`config/<subsystem_name>/`)
+├── client          # Network communication protocols for telemetry and robot access via Flutter applications
+├── description     # Physical robot description (transforms, URDF, STL, etc.)
+├── drivers         # Packages managing hardware communication and hardware data preprocessing
+├── interfaces      # .msg, .action, .srv
+├── missions        # Robot mission configurations
+└── subsystems      # Robot subsystems: localization, navigation, SLAM, odometry, vision, safety, etc.
+```
+
+### Directory Hierarchy
+```
+./src
+├── <package_category_folder>
+│   └── <package_name>
+```
+
+### Naming Format
+| Folder Location | Package Name (package.xml) | Example
+| --- | --- | --- | 
+| `interfaces/` | `<robot>_<domain>_interfaces` | `amr_mission_interfaces` |
+| `drivers/` | `<vendor>_<device>_driver` or `<protocol>_bridge` | `teensy_mcu_driver` or `socketcan_bridge` |
+| `subsystems/` | `<robot>_<subsystem>` | `amr_navigation` |
+| `bringup/` | `<robot>_bringup` | `amr_bringup` |
 
 ## How to Setup (Native)
 1. Install all ROS 2 dependencies:
@@ -75,3 +103,96 @@ Terminal ini sudah **otomatis di-source** dengan ROS 2 Humble dan workspace AMR.
     source install/setup.bash
     ```
 5. Ready to go
+
+## Features and How to Run Each
+### 1. Feature SLAM Mapping
+
+0. Prepare 4 terminal and setup each terminal
+    ```bash
+    cd amr_ws
+    ```
+    
+1. Source each terminal
+    ```bash
+    source /opt/ros/humble/setup.bash
+    source ./install/setup.bash
+    ```
+
+2. In terminal 1, launch all hardware (bringup the system)
+    ```bash
+    ros2 launch amr_bringup bringup.launch.py \
+    front_lidar_port:=/dev/ttyUSB0 \
+    rear_lidar_port:=/dev/ttyUSB1 \
+    motor_port:=/dev/ttyUSB2
+    ```
+
+3. In terminal 2, run Launch SLAM Toolbox
+    ```bash
+    ros2 launch amr_navigation amr_slam.launch.py
+    ```
+    Wait until the error disappear from the log `slam_toolbox`.
+
+4. In terminal 3, run Teleop Keyboard / Wifi Node
+
+    ```bash
+    ros2 run amr_teleop teleop_keyboard_node # if using keyboard
+    ```
+    or 
+    ```bash
+    ros2 run amr_teleop teleop_wifi_node # if using wifi
+    ```
+
+5. In terminal 4, save map after mapping.
+    **Don't End the Nodes before**
+    ```bash
+    ros2 launch amr_bringup save_map.launch.py \
+        map_path:=$HOME/map_$(date +%Y%m%d)
+    ```
+    This will result in two files: `map_YYYYMMDD.pgm` dan `map_YYYYMMDD.yaml`.
+
+### 2. Feature Nav2
+0. Prepare 2 terminal and setup each terminal
+    ```bash
+    cd amr_ws
+    ```
+    
+1. Source each terminal
+    ```bash
+    source /opt/ros/humble/setup.bash
+    source ./install/setup.bash
+    ```
+
+2. In terminal 1, launch all hardware (bringup the system)
+    ```bash
+    ros2 launch amr_bringup bringup.launch.py \
+    front_lidar_port:=/dev/ttyUSB0 \
+    rear_lidar_port:=/dev/ttyUSB1 \
+    motor_port:=/dev/ttyUSB2
+    ```
+3. In terminal 2, launch navigation
+    ```bash
+    ros2 launch amr_navigation navigation.launch.py \
+    map:=$HOME/map_YYYYMMDD.yaml \ 
+    slam:=false \ # if true, it will open slam_toolbox for SLAM
+    use_sim_time:=false # make it true if using gazebo, else keep it
+    ```
+    Then, you may:  
+    a. In RViz, click **2D Pose Estimate**  
+    b. Click and drag at the robot's current position on the map (pointing in the direction the robot is facing)  
+    c. Move the robot slightly using teleop → AMCL will converge  
+
+## Quick Troubleshooting
+
+| Symptom | Possible Cause | Fix |
+|---|---|---|
+| TF error `odom → base_link` | EKF not receiving `/imu/data` | Check Teensy LED, check `ros2 topic hz /imu/data` |
+| Robot does not move during teleop | ZLAC not enabled | Check Terminal 1 logs, try reconnecting motor USB |
+| Map not forming / completely black | LiDAR not publishing `/scan` | `ros2 topic hz /scan` — should be ~10 Hz |
+| `[FAIL] ZLAC motor not found` | Incorrect port | Check `ls /dev/ttyUSB*`, adjust launch arguments |
+| Teensy LED flashing rapidly | BNO080 not detected | Check I2C wiring (SDA=18, SCL=19, PS0=GND, PS1=GND) |
+| Nav2 won't send goal | Initial pose not set | Repeat "2D Pose Estimate" step |
+
+## Authors
+1. Reinhard Iven Wiennata (13223009)
+2. Karol Yangqian Poetracahya (13523093)
+3. Brian A. Hadian (13523048)

@@ -1,6 +1,6 @@
 /simple_scan_merger:
   ros__parameters:
-    target_frame: base_link
+    target_frame: laser_frame
     merged_topic: /scan
     scan_topics:
       - /front_scan

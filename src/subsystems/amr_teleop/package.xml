@@ -4,9 +4,21 @@
   <name>amr_teleop</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
+<<<<<<< HEAD
   <maintainer email="bri.hadian@gmail.com">hadynata</maintainer>
   <license>Apache-2.0</license>
 
+=======
+  <maintainer email="karolyangqian14@gmail.com">karol</maintainer>
+  <license>Apache-2.0</license>
+
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+>>>>>>> origin/refactor/tidy-up
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

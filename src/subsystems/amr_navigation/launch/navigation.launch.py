@@ -2,6 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+<<<<<<< HEAD
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
@@ -16,6 +17,22 @@ def generate_launch_description():
     default_rviz_cfg = os.path.join(pkg_desc, 'rviz', 'navigation.rviz')
 
     # --- Launch Arguments ---
+=======
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    pkg_nav  = get_package_share_directory('amr_navigation')
+    pkg_nav2 = get_package_share_directory('nav2_bringup')
+
+    default_map = os.path.join(pkg_nav, 'maps', 'peta_ruangan_baru.yaml')
+    nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
+
+>>>>>>> origin/refactor/tidy-up
     map_arg = DeclareLaunchArgument(
         'map',
         default_value=default_map,
@@ -29,6 +46,7 @@ def generate_launch_description():
     )
 
     rviz_arg = DeclareLaunchArgument(
+<<<<<<< HEAD
         'rviz',
         default_value='true',
         description='Launch RViz navigation view'
@@ -281,3 +299,41 @@ def generate_launch_description():
         # RViz
         rviz_node,
     ])
+=======
+        'rviz', default_value='true', description='Launch RViz navigation view'
+    )
+
+    rviz_cfg = os.path.join(pkg_nav, 'rviz', 'navigation.rviz')
+
+    # Nav2 bringup lengkap: map_server + AMCL + navigation stack
+    nav2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_nav2, 'launch', 'bringup_launch.py')
+        ),
+        launch_arguments={
+            'map':          LaunchConfiguration('map'),
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'params_file':  nav2_params,
+            'slam':         'False',
+            'autostart':    'True',
+        }.items()
+    )
+
+    rviz = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_cfg],
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        condition=IfCondition(LaunchConfiguration('rviz')),
+        output='screen',
+    )
+
+    return LaunchDescription([
+        map_arg,
+        use_sim_time_arg,
+        rviz_arg,
+        nav2,
+        rviz,
+    ])
+>>>>>>> origin/refactor/tidy-up

@@ -8,7 +8,7 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    pkg_amr = get_package_share_directory('amr_description')
+    pkg_amr = get_package_share_directory('amr_navigation')
     pkg_slam = get_package_share_directory('slam_toolbox')
 
     slam_params_file = os.path.join(

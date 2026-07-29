@@ -56,9 +56,7 @@ RUN chmod +x /entrypoint.sh
 
 # Sourcing otomatis di shell interaktif (.bashrc)
 RUN echo "source /opt/ros/humble/setup.bash" >> /home/$USERNAME/.bashrc \
-    && echo "if [ -f /home/$USERNAME/amr_ws/install/setup.bash ]; then source /home/$USERNAME/amr_ws/install/setup.bash; fi" >> /home/$USERNAME/.bashrc \
-    && echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> /home/$USERNAME/.bashrc \
-    && echo "export CYCLONEDDS_URI=/home/$USERNAME/amr_ws/cyclonedds.xml" >> /home/$USERNAME/.bashrc
+    && echo "if [ -f /home/$USERNAME/amr_ws/install/setup.bash ]; then source /home/$USERNAME/amr_ws/install/setup.bash; fi" >> /home/$USERNAME/.bashrc 
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash"]

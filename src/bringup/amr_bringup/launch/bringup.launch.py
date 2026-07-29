@@ -15,11 +15,13 @@ def generate_launch_description():
     pkg_lidar = get_package_share_directory('ydlidar_ros2_driver')
     pkg_merger = get_package_share_directory('ros2_laser_scan_merger')
     pkg_discovery = get_package_share_directory('amr_discovery')
+    pkg_hardware = get_package_share_directory('amr_hardware')
+    pkg_nav      = get_package_share_directory('amr_navigation')
 
     urdf_file        = os.path.join(pkg_desc, 'urdf', 'amr.urdf.xacro')
-    front_lidar_yaml = os.path.join(pkg_desc, 'config', 'front_lidar.yaml')
-    rear_lidar_yaml  = os.path.join(pkg_desc,   'config', 'rear_lidar.yaml')
-    ekf_yaml         = os.path.join(pkg_desc, 'config', 'ekf.yaml')
+    front_lidar_yaml = os.path.join(pkg_hardware, 'config', 'front_lidar.yaml')
+    rear_lidar_yaml  = os.path.join(pkg_hardware, 'config', 'rear_lidar.yaml')
+    ekf_yaml         = os.path.join(pkg_nav, 'config', 'ekf.yaml')
     merger_config    = os.path.join(pkg_merger, 'config', 'params.yaml')
 
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
@@ -31,7 +33,6 @@ def generate_launch_description():
         DeclareLaunchArgument('teensy_port',       default_value='/dev/amr_mcu'),
         DeclareLaunchArgument('wheel_separation',  default_value='0.445'),
         DeclareLaunchArgument('use_teensy',        default_value='true'),
-        DeclareLaunchArgument('use_camera',        default_value='false'),
     ]
 
     # run micro ros agent
@@ -103,7 +104,11 @@ def generate_launch_description():
         executable='pointcloud_to_laserscan_node',
         name='pointcloud_to_laserscan',
         parameters=[merger_config],
+<<<<<<< HEAD
         output='screen',
+=======
+        output='screen',   
+>>>>>>> origin/refactor/tidy-up
     )
 
     scan_relay = Node(
@@ -113,15 +118,37 @@ def generate_launch_description():
         output='screen',
     )
 
+<<<<<<< HEAD
     # Odom: encoder-based wheel travel (sumber odometri utama)
+=======
+    # Odom: IMU gyro + cmd_vel_raw dead-reckoning
+    odom_node = Node(
+        package='amr_odom',
+        executable='odom_node',
+        name='odom_node',
+        parameters=[{
+            'wheel_base': LaunchConfiguration('wheel_separation'),
+            'wheel_circ': 0.359,
+            'publish_tf': False,
+            'odom_frame': 'odom',
+            'base_frame': 'base_link',
+        }],
+        output='screen',
+    )
+
+>>>>>>> origin/refactor/tidy-up
     wheel_odom = Node(
-        package='amr_hardware',
+        package='amr_odom',
         executable='wheel_travel_odom_node',
         name='wheel_travel_odom_node',
         parameters=[{
             'wheel_separation': 0.445,
             'odom_frame':       'odom',
+<<<<<<< HEAD
             'base_frame':       'base_link',
+=======
+            'base_frame':       'base_footprint',
+>>>>>>> origin/refactor/tidy-up
             'publish_tf':       False,
         }],
         output='screen',
@@ -144,7 +171,7 @@ def generate_launch_description():
     )
 
     estop = Node(
-        package='amr_hardware',
+        package='amr_safety',
         executable='emergency_stop_node',
         name='emergency_stop_node',
         parameters=[{
@@ -210,9 +237,9 @@ def generate_launch_description():
         laser_merger,
         wheel_odom,
         imu_fixer,
-        cmd_vel_inverter,
+        # cmd_vel_inverter,
         ekf,
-        estop,
+        # estop,
         imu_static_tf,
         pc_to_scan,
         scan_relay,

@@ -9,9 +9,9 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     pkg_nav2 = get_package_share_directory('nav2_bringup')
-    pkg_desc = get_package_share_directory('amr_description')
+    pkg_nav  = get_package_share_directory('amr_navigation')
 
-    nav2_params = os.path.join(pkg_desc, 'config', 'nav2_params_minimal.yaml')
+    nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params_minimal.yaml')
 
     map_arg = DeclareLaunchArgument(
         'map',

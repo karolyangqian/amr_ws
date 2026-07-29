@@ -74,7 +74,15 @@
     <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
   </joint>
 
-  <link name="base_link">
+  <link name="base_link"/>
+
+  <joint name="base_link_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="chassis_link"/>
+    <origin xyz="-0.05 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="chassis_link">
     <!-- Mesh di-shift ke atas agar bottom-nya pas di Z=0 base_link -->
     <visual>
       <origin xyz="0 0 ${base_mesh_z_shift}" rpy="${mesh_rpy_base}"/>
@@ -176,23 +184,28 @@
   </gazebo>
 
   <gazebo>
-    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
-      <ros>
-        <remapping>cmd_vel:=cmd_vel</remapping>
-        <remapping>odom:=odom</remapping>
-      </ros>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
       <left_joint>wheel_left_joint</left_joint>
       <right_joint>wheel_right_joint</right_joint>
       <wheel_separation>${wheel_separation}</wheel_separation>
-      <wheel_diameter>${2*wheel_radius}</wheel_diameter>
-      <max_wheel_torque>50000.0</max_wheel_torque>
-      <max_wheel_acceleration>10.0</max_wheel_acceleration>
-      <publish_odom>true</publish_odom>
-      <publish_odom_tf>true</publish_odom_tf>
-      <publish_wheel_tf>true</publish_wheel_tf>
-      <publish_wheel_joint_state>true</publish_wheel_joint_state>
-      <odometry_frame>odom</odometry_frame>
-      <robot_base_frame>base_footprint</robot_base_frame>
+      <wheel_radius>${wheel_radius}</wheel_radius>
+      <max_linear_acceleration>10.0</max_linear_acceleration>
+      <max_angular_acceleration>10.0</max_angular_acceleration>
+      <topic>cmd_vel</topic>
+      <odom_topic>odom</odom_topic>
+      <tf_topic>tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <odom_publisher_frequency>30</odom_publisher_frequency>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>joint_states</topic>
+      <joint_name>wheel_left_joint</joint_name>
+      <joint_name>wheel_right_joint</joint_name>
+    </plugin>
+
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
     </plugin>
   </gazebo>
 
@@ -237,11 +250,13 @@
     </joint>
     <gazebo reference="${name}_link">
       <material>Gazebo/Blue</material>
-      <sensor name="${name}_sensor" type="ray">
+      <sensor name="${name}_sensor" type="gpu_lidar">
         <always_on>true</always_on>
         <visualize>true</visualize>
         <update_rate>10</update_rate>
-        <ray>
+        <topic>${topic_name}</topic>
+        <gz_frame_id>${name}_link</gz_frame_id>
+        <lidar>
           <scan>
             <horizontal>
               <samples>210</samples><resolution>1</resolution>
@@ -249,22 +264,17 @@
             </horizontal>
           </scan>
           <range><min>0.15</min><max>12.0</max><resolution>0.01</resolution></range>
-        </ray>
-        <plugin name="${name}_plugin" filename="libgazebo_ros_ray_sensor.so">
-          <ros><remapping>~/out:=${topic_name}</remapping></ros>
-          <output_type>sensor_msgs/LaserScan</output_type>
-          <frame_name>${name}_link</frame_name>
-        </plugin>
+        </lidar>
       </sensor>
     </gazebo>
   </xacro:macro>
 
   <xacro:lidar_sensor name="lidar_front_right"
-                      xp=" ${lidar_x_off}" yp="-${lidar_y_off}" yaw="${-pi/4}"
+                      xp=" 0.31" yp="-0.32" yaw="${-pi/4}"
                       topic_name="scan_front" mesh_file="lidar1_link.stl"/>
 
   <xacro:lidar_sensor name="lidar_rear_left"
-                      xp="-${lidar_x_off}" yp=" ${lidar_y_off}" yaw="${3*pi/4}"
+                      xp="-0.31" yp=" 0.42" yaw="${3*pi/4}"
                       topic_name="scan_rear" mesh_file="lidar2_link.stl"/>
 
   <!-- ============ IMU ============ -->
@@ -287,11 +297,11 @@
     <gazebo reference="${name}_link">
       <material>Gazebo/Green</material>
       <sensor name="${name}_sensor" type="imu">
-        <always_on>true</always_on><update_rate>50</update_rate>
-        <plugin name="${name}_plugin" filename="libgazebo_ros_imu_sensor.so">
-          <ros><remapping>~/out:=/imu/data</remapping></ros>
-          <initial_orientation_as_reference>false</initial_orientation_as_reference>
-        </plugin>
+        <always_on>true</always_on>
+        <update_rate>50</update_rate>
+        <topic>imu/data</topic>
+        <gz_frame_id>${name}_link</gz_frame_id>
+        <imu/>
       </sensor>
     </gazebo>
   </xacro:macro>

@@ -37,4 +37,8 @@
 - topic_name: /imu/data
   ros_type_name: sensor_msgs/msg/Imu
   gz_type_name: gz.msgs.IMU
+<<<<<<< HEAD
   direction: GZ_TO_ROS
+=======
+  direction: GZ_TO_ROS
+>>>>>>> origin/refactor/tidy-up

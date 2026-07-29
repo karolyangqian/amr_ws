@@ -25,6 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             'zlac_odom_node = amr_odom.zlac_odom_node:main',
+            'wheel_travel_odom_node = amr_odom.wheel_travel_odom_node:main',
+            'odom_node = amr_odom.odom_node:main',
         ],
     },
 )

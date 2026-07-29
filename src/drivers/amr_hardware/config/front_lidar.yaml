@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    port: /dev/ttyUSB0
+    port: /dev/amr_lidar_front
     frame_id: lidar_front_right_link
     ignore_array: ""
     baudrate: 230400

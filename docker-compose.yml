@@ -11,8 +11,7 @@ services:
     environment:
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - CYCLONEDDS_URI=/home/dev/amr_ws/cyclonedds.xml
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
     volumes:
       - .:/home/dev/amr_ws
       - /dev:/dev

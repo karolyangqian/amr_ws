@@ -24,6 +24,7 @@ setup(
         'console_scripts': [
             'mission_executor_node  = amr_mission.mission_executor_node:main',
             'station_recorder_node  = amr_mission.station_recorder_node:main',
+            'control_station        = amr_mission.control_station:main',
         ],
     },
 )

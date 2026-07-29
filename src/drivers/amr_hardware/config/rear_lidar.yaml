@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    port: /dev/ttyUSB1
+    port: /dev/amr_lidar_rear
     frame_id: lidar_rear_left_link
     ignore_array: ""
     baudrate: 230400
@@ -12,7 +12,7 @@
     frequency: 10.0
     sample_rate: 4
     abnormal_check_count: 1000
-    fixed_resolution: false
+    fixed_resolution: true
     reversion: false
     inverted: true
     auto_reconnect: true

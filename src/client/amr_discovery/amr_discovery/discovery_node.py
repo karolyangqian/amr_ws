@@ -6,7 +6,7 @@ from typing import Optional
 import rclpy
 from rclpy.node import Node
 
-from amr_msgs.msg import RobotStatus
+from interfaces.amr_msgs.msg import RobotStatus
 
 from client.amr_discovery.amr_discovery.protocol import (
     DEFAULT_PORT,

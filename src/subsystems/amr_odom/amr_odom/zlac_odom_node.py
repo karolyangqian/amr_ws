@@ -6,7 +6,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 
-from amr_hardware.zlac8015d.ZLAC8015D import Controller as ZLACController
+from drivers.amr_hardware.amr_hardware.zlac8015d.ZLAC8015D import Controller as ZLACController
 
 
 class ZlacOdomNode(Node):

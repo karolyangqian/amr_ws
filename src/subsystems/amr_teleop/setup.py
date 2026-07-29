@@ -1,11 +1,8 @@
 from setuptools import find_packages, setup
 
-<<<<<<< HEAD
-=======
 import os
 from glob import glob
 
->>>>>>> origin/refactor/tidy-up
 package_name = 'amr_teleop'
 
 setup(
@@ -16,20 +13,12 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-<<<<<<< HEAD
-    ],
-    install_requires=['setuptools'],
-    zip_safe=True,
-    maintainer='hadynata',
-    maintainer_email='bri.hadian@gmail.com',
-=======
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='karol',
     maintainer_email='karolyangqian14@gmail.com',
->>>>>>> origin/refactor/tidy-up
     description='TODO: Package description',
     license='Apache-2.0',
     extras_require={
@@ -39,12 +28,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-<<<<<<< HEAD
-            'teleop_wifi_node = amr_teleop.teleop_wifi_node:main'
-=======
             'teleop_keyboard_node = amr_teleop.teleop_keyboard_node:main',
             'teleop_wifi_node = amr_teleop.teleop_wifi_node:main',
->>>>>>> origin/refactor/tidy-up
         ],
     },
 )

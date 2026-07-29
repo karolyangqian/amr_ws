@@ -104,11 +104,7 @@ def generate_launch_description():
         executable='pointcloud_to_laserscan_node',
         name='pointcloud_to_laserscan',
         parameters=[merger_config],
-<<<<<<< HEAD
-        output='screen',
-=======
         output='screen',   
->>>>>>> origin/refactor/tidy-up
     )
 
     scan_relay = Node(
@@ -118,9 +114,6 @@ def generate_launch_description():
         output='screen',
     )
 
-<<<<<<< HEAD
-    # Odom: encoder-based wheel travel (sumber odometri utama)
-=======
     # Odom: IMU gyro + cmd_vel_raw dead-reckoning
     odom_node = Node(
         package='amr_odom',
@@ -136,7 +129,6 @@ def generate_launch_description():
         output='screen',
     )
 
->>>>>>> origin/refactor/tidy-up
     wheel_odom = Node(
         package='amr_odom',
         executable='wheel_travel_odom_node',
@@ -144,11 +136,7 @@ def generate_launch_description():
         parameters=[{
             'wheel_separation': 0.445,
             'odom_frame':       'odom',
-<<<<<<< HEAD
-            'base_frame':       'base_link',
-=======
             'base_frame':       'base_footprint',
->>>>>>> origin/refactor/tidy-up
             'publish_tf':       False,
         }],
         output='screen',
@@ -237,7 +225,8 @@ def generate_launch_description():
         laser_merger,
         wheel_odom,
         imu_fixer,
-        # cmd_vel_inverter,
+        odom_node,
+        cmd_vel_inverter,
         ekf,
         # estop,
         imu_static_tf,

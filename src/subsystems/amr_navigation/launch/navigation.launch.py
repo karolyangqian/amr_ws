@@ -9,7 +9,7 @@ from launch_ros.actions import Node, LifecycleNode
 
 
 def generate_launch_description():
-    pkg_desc = get_package_share_directory('amr_description')
+    pkg_desc = get_package_share_directory('amr_navigation')
 
     default_map = os.path.join(pkg_desc, 'maps', 'peta_ruangan_baru.yaml')
     nav2_params = os.path.join(pkg_desc, 'config', 'nav2_params.yaml')

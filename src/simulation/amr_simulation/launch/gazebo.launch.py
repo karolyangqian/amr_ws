@@ -27,9 +27,9 @@ def generate_launch_description():
 
     world_arg = DeclareLaunchArgument(
         'world',
-        # default_value='https://fuel.gazebosim.org/1.0/hboc/worlds/simple_colored_warehouse',
-        default_value='empty.sdf',
-        description='Gazebo Sim world file or Fuel URI'
+        # default_value='empty.sdf',
+        default_value=os.path.join(pkg_sim, 'worlds', 'indoor.sdf'),
+        description='Gazebo Sim world file or Fuel '
     )
 
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)

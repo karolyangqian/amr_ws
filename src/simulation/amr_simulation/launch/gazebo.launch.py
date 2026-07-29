@@ -29,7 +29,7 @@ def generate_launch_description():
         'world',
         # default_value='empty.sdf',
         default_value=os.path.join(pkg_sim, 'worlds', 'indoor.sdf'),
-        description='Gazebo Sim world file or Fuel '
+        description='Gazebo Sim world file or Fuel URI'
     )
 
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)

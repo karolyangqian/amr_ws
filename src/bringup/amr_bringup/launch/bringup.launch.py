@@ -39,12 +39,6 @@ def generate_launch_description():
         DeclareLaunchArgument('use_teensy',        default_value='true'),
     ]
 
-    # run micro ros agent
-    ExecuteProcess(
-        cmd=['ros2', 'run', 'micro_ros_agent', 'micro_ros_agent', 'serial', '--dev', '/dev/ttyACM0', '-b', '115200'],
-        output='screen'
-    ),
-
     # Beri akses ke semua port secara otomatis saat launch
     chmod_ports = ExecuteProcess(
         cmd=['bash', '-c',

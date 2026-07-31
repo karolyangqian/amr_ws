@@ -13,7 +13,7 @@ def generate_launch_description():
     pkg_nav = get_package_share_directory('amr_navigation')
     pkg_nav2_bringup = get_package_share_directory('nav2_bringup')
 
-    default_map = os.path.join(pkg_nav, 'maps', 'gz_indoor.yaml')
+    default_map = os.path.join(pkg_nav, 'maps', 'peta_ruangan_dalam.yaml')
     nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
     default_rviz_cfg = os.path.join(pkg_nav, 'rviz', 'navigation.rviz')
 
@@ -26,13 +26,13 @@ def generate_launch_description():
 
     use_sim_time_arg = DeclareLaunchArgument(
         'use_sim_time',
-        default_value='false',
+        default_value='False',
         description='Use simulation clock (true for Gazebo, false for hardware)'
     )
 
     rviz_arg = DeclareLaunchArgument(
         'rviz',
-        default_value='true',
+        default_value='True',
         description='Launch RViz navigation view'
     )
 
@@ -44,7 +44,7 @@ def generate_launch_description():
 
     slam_arg = DeclareLaunchArgument(
         'slam', 
-        default_value='false',
+        default_value='False',
         description='true = pakai /map dari slam_toolbox live; false = pakai saved map + AMCL'
     )
 

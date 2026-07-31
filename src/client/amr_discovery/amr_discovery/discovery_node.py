@@ -6,9 +6,9 @@ from typing import Optional
 import rclpy
 from rclpy.node import Node
 
-from interfaces.amr_msgs.msg import RobotStatus
+from amr_msgs.msg import RobotStatus
 
-from client.amr_discovery.amr_discovery.protocol import (
+from amr_discovery.protocol import (
     DEFAULT_PORT,
     RobotStatusSnapshot,
     build_reply,

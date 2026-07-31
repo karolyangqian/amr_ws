@@ -19,7 +19,7 @@ class EmergencyStopNode(Node):
 
         self.declare_parameter('stop_distance', 0.25)   # meter — jarak kritis
         self.declare_parameter('warn_distance', 0.45)   # meter — mulai warning
-        self.declare_parameter('scan_topic', '/scan')
+        self.declare_parameter('scan_topic', '/scan_reliable')
 
         self._stop_d = self.get_parameter('stop_distance').value
         self._warn_d = self.get_parameter('warn_distance').value
@@ -49,9 +49,10 @@ class EmergencyStopNode(Node):
             f'emergency_stop_node | stop={self._stop_d}m  warn={self._warn_d}m | Watchdog Aktif (60Hz)'
         )
 
+        # turn on for doing health check loop and trigger_estop
         # --- RUN 60 HZ HEALTH CHECK ON BACKGROUND THREAD ---
-        self._watchdog_thread = threading.Thread(target=self._health_check_loop, daemon=True)
-        self._watchdog_thread.start()
+        # self._watchdog_thread = threading.Thread(target=self._health_check_loop, daemon=True)
+        # self._watchdog_thread.start()
 
     def _scan_cb(self, msg: LaserScan):
         # Update timestamp deteksi masuk ke sensor watchdog
@@ -65,7 +66,8 @@ class EmergencyStopNode(Node):
         triggered = min_d < self._stop_d
 
         if triggered and not self._active:
-            self._trigger_estop(f"Obstacle detected closer than threshold: {min_d:.3f} m")
+            # self._trigger_estop(f"Obstacle detected closer than threshold: {min_d:.3f} m")
+            pass
         elif not triggered and self._active:
             # Tetap biarkan dilepaskan secara aman jika sensor mendeteksi jalur sudah clear
             pass
@@ -110,7 +112,7 @@ class EmergencyStopNode(Node):
 
             # --- 2. MONITOR KONEKSI VITAL PERIPHERAL USB PATHS ---
             # Meniru mekanika runtime preflight_check.sh
-            vital_ports = ['/dev/ttyUSB0', '/dev/ttyUSB2'] # Lidar & Motor Drivers
+            vital_ports = ['/dev/ttyUSB0'] # Lidar & Motor Drivers
             for port in vital_ports:
                 if not os.path.exists(port):
                     self._trigger_estop(

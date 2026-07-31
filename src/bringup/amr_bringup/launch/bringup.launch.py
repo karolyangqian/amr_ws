@@ -23,10 +23,14 @@ def generate_launch_description():
     rear_lidar_yaml  = os.path.join(pkg_hardware, 'config', 'rear_lidar.yaml')
     ekf_yaml         = os.path.join(pkg_nav, 'config', 'ekf.yaml')
     merger_config    = os.path.join(pkg_merger, 'config', 'params.yaml')
+    simple_scan_merger_config = os.path.join(pkg_merger, 'config', 'simple_scan_merger.yaml')
 
     robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
 
+    use_sim_time = LaunchConfiguration('use_sim_time')
+
     args = [
+        DeclareLaunchArgument('use_sim_time',      default_value='false', description='Use simulation clock if true'),
         DeclareLaunchArgument('front_lidar_port', default_value='/dev/amr_lidar_front'),
         DeclareLaunchArgument('rear_lidar_port',  default_value='/dev/amr_lidar_rear'),
         DeclareLaunchArgument('motor_port',       default_value='/dev/amr_motor'),
@@ -45,18 +49,16 @@ def generate_launch_description():
     rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        parameters=[{'robot_description': robot_desc, 'use_sim_time': False}],
+        parameters=[{'robot_description': robot_desc, 'use_sim_time': use_sim_time}],
         output='screen',
     )
 
     jsp = Node(
         package='joint_state_publisher',
         executable='joint_state_publisher',
-        parameters=[{'robot_description': robot_desc}],
+        parameters=[{'robot_description': robot_desc, 'use_sim_time': use_sim_time}],
         output='screen',
     )
-
-
 
     # Front LiDAR langsung ke /front_scan + pakai rear + merger
     lidar_front = LifecycleNode(
@@ -65,7 +67,8 @@ def generate_launch_description():
         name='lidar_front',
         namespace='/',
         parameters=[front_lidar_yaml,
-                    {'port': LaunchConfiguration('front_lidar_port')}],
+                    {'port': LaunchConfiguration('front_lidar_port'),
+                     'use_sim_time': use_sim_time}],
         remappings=[('/scan', '/front_scan')],
         output='screen',
         emulate_tty=True,
@@ -77,7 +80,8 @@ def generate_launch_description():
         name='lidar_rear',
         namespace='/',
         parameters=[rear_lidar_yaml,
-                    {'port': LaunchConfiguration('rear_lidar_port')}],
+                    {'port': LaunchConfiguration('rear_lidar_port'),
+                     'use_sim_time': use_sim_time}],
         remappings=[('/scan', '/rear_scan')],
         output='screen',
         emulate_tty=True,
@@ -87,7 +91,17 @@ def generate_launch_description():
         package='ros2_laser_scan_merger',
         executable='ros2_laser_scan_merger',
         name='ros2_laser_scan_merger',
-        parameters=[merger_config],
+        parameters=[merger_config, {'use_sim_time': use_sim_time}],
+        output='screen',
+        respawn=True,
+        respawn_delay=2.0,
+    )
+
+    simple_scan_merger = Node(
+        package='ros2_laser_scan_merger',
+        executable='simple_scan_merger',
+        name='simple_scan_merger',
+        parameters=[simple_scan_merger_config, {'use_sim_time': use_sim_time}],
         output='screen',
         respawn=True,
         respawn_delay=2.0,
@@ -97,7 +111,7 @@ def generate_launch_description():
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',
         name='pointcloud_to_laserscan',
-        parameters=[merger_config],
+        parameters=[merger_config, {'use_sim_time': use_sim_time}],
         output='screen',   
     )
 
@@ -105,6 +119,7 @@ def generate_launch_description():
         package='amr_hardware',
         executable='scan_relay_node',
         name='scan_relay_node',
+        parameters=[{'use_sim_time': use_sim_time}],
         output='screen',
     )
 
@@ -119,6 +134,7 @@ def generate_launch_description():
             'publish_tf': False,
             'odom_frame': 'odom',
             'base_frame': 'base_link',
+            'use_sim_time': use_sim_time,
         }],
         output='screen',
     )
@@ -130,8 +146,9 @@ def generate_launch_description():
         parameters=[{
             'wheel_separation': 0.445,
             'odom_frame':       'odom',
-            'base_frame':       'base_footprint',
+            'base_frame':       'base_link',
             'publish_tf':       False,
+            'use_sim_time':     use_sim_time,
         }],
         output='screen',
     )
@@ -140,7 +157,7 @@ def generate_launch_description():
         package='amr_hardware',
         executable='imu_fixer_node',
         name='imu_fixer_node',
-        parameters=[{'frame_id': 'imu_link'}],
+        parameters=[{'frame_id': 'imu_link', 'use_sim_time': use_sim_time}],
         output='screen',
     )
 
@@ -149,6 +166,7 @@ def generate_launch_description():
         package='amr_hardware',
         executable='cmd_vel_inverter_node',
         name='cmd_vel_inverter_node',
+        parameters=[{'use_sim_time': use_sim_time}],
         output='screen',
     )
 
@@ -156,7 +174,7 @@ def generate_launch_description():
         package='robot_localization',
         executable='ekf_node',
         name='ekf_filter_node',
-        parameters=[ekf_yaml],
+        parameters=[ekf_yaml, {'use_sim_time': use_sim_time}],
         output='screen',
     )
 
@@ -168,15 +186,8 @@ def generate_launch_description():
             'stop_distance': 0.25,
             'warn_distance': 0.45,
             'scan_topic':    '/scan',
+            'use_sim_time':  use_sim_time,
         }],
-        output='screen',
-    )
-
-    imu_fixer = Node(
-        package='amr_hardware',
-        executable='imu_fixer_node',
-        name='imu_fixer_node',
-        parameters=[{'frame_id': 'imu_link'}],
         output='screen',
     )
 
@@ -189,6 +200,7 @@ def generate_launch_description():
             '--roll', '0', '--pitch', '0', '--yaw', '0',
             '--frame-id', 'base_link', '--child-frame-id', 'imu_link',
         ],
+        parameters=[{'use_sim_time': use_sim_time}],
     )
 
     # zlac ditrue false aja - Rein
@@ -204,6 +216,7 @@ def generate_launch_description():
             'decel_time_ms':   200,
             'cmd_vel_timeout': 1000.0,
             'max_reg':         250,
+            'use_sim_time':    use_sim_time,
         }],
         output='screen',
         condition=UnlessCondition(LaunchConfiguration('use_teensy')),
@@ -224,16 +237,18 @@ def generate_launch_description():
         jsp,
         lidar_front,
         lidar_rear,
-        laser_merger,
-        odom_node,
+        # laser_merger,
+        simple_scan_merger,
+        # odom_node,
         wheel_odom,
         imu_fixer,
         # cmd_vel_inverter,
         ekf,
         # estop,
         imu_static_tf,
-        pc_to_scan,
-        scan_relay,
+        # pc_to_scan,
+        # scan_relay,
         zlac_delayed,
         discovery_launch,
     ])
+

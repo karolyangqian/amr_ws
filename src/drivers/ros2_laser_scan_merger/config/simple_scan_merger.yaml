@@ -1,10 +1,10 @@
 /simple_scan_merger:
   ros__parameters:
-    target_frame: "base_link"
-    merged_topic: "/scan"
+    target_frame: laser_frame
+    merged_topic: /scan
     scan_topics:
-      - "/front_scan"
-      - "/rear_scan"
+      - /front_scan
+      - /rear_scan
 
     angle_min: -3.141592653589793
     angle_max: 3.141592653589793
@@ -17,5 +17,7 @@
     max_height: 1.0
 
     use_tf: true
-    transform_tolerance: 0.05
-    qos_reliability: "reliable"     # "reliable" atau "best_effort"
+    transform_tolerance: 0.2
+    qos_reliability: reliable     # "reliable" atau "best_effort"
+    publish_rate: 10.0            # Frekuensi publish konstan (Hz)
+    scan_timeout: 0.5             # Timeout keaktifan data scan (detik)

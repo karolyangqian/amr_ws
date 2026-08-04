@@ -411,8 +411,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
     
     # [x, y, theta]
-    max_velocity: [0.3, 0.0, 0.06]
-    min_velocity: [-0.3, 0.0, -0.06]
+    max_velocity: [0.3, 0.0, 0.2]
+    min_velocity: [-0.3, 0.0, -0.2]
     
     # [x, y, theta]
     max_accel: [0.3, 0.0, 0.2]

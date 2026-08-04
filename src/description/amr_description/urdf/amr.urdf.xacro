@@ -270,11 +270,11 @@
   </xacro:macro>
 
   <xacro:lidar_sensor name="lidar_front_right"
-                      xp="0.32" yp="-0.31" yaw="${-pi/4}"
+                      xp="0.32" yp="-0.31" yaw="${-pi/4+0.2968}"
                       topic_name="front_scan" mesh_file="lidar1_link.stl"/>
 
   <xacro:lidar_sensor name="lidar_rear_left"
-                      xp="-0.42" yp="0.31" yaw="${3*pi/4}"
+                      xp="-0.42" yp="0.31" yaw="${3*pi/4+0.2968}"
                       topic_name="rear_scan" mesh_file="lidar2_link.stl"/>
 
   <!-- ============ IMU ============ -->

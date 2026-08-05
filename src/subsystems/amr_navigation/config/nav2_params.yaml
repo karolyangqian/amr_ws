@@ -239,7 +239,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0
-        inflation_radius: 0.60
+        inflation_radius: 0.4
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -256,11 +256,11 @@ local_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 5.0
+          raytrace_max_range: 6.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 4.0
-          obstacle_min_range: 0.1       # Dinaikkan ke 0.1 agar pantulan dari body robot sendiri tidak dibaca sebagai obstacle
-          inf_is_valid: true            # SANGAT PENTING: Untuk menghapus jejak obstacle (ghost obstacle) yang sudah hilang
+          obstacle_max_range: 6.0
+          obstacle_min_range: 0.1
+          inf_is_valid: true
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
@@ -287,33 +287,46 @@ global_costmap:
         enabled: True
         combination_method: 1
         # 2. BACA DARI 2 MATA LIDAR SEKALIGUS
-        observation_sources: front_scan rear_scan
+        # observation_sources: front_scan rear_scan
+        observation_sources: scan
+
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 4.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 3.5
+          obstacle_min_range: 0.1
+          inf_is_valid: true
         
-        # Pengaturan Mata Depan
-        scan_front:
-          topic: /front_scan
-          max_obstacle_height: 2.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 4.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 3.5
-          obstacle_min_range: 0.0
-          inf_is_valid: true
+        # # Pengaturan Mata Depan
+        # scan_front:
+        #   topic: /front_scan
+        #   max_obstacle_height: 2.0
+        #   clearing: True
+        #   marking: True
+        #   data_type: "LaserScan"
+        #   raytrace_max_range: 6.0
+        #   raytrace_min_range: 0.0
+        #   obstacle_max_range: 6.0
+        #   obstacle_min_range: 0.1
+        #   inf_is_valid: true
           
-        # Pengaturan Mata Belakang
-        scan_rear:
-          topic: /rear_scan
-          max_obstacle_height: 2.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 4.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 3.5
-          obstacle_min_range: 0.0
-          inf_is_valid: true
+        # # Pengaturan Mata Belakang
+        # scan_rear:
+        #   topic: /rear_scan
+        #   max_obstacle_height: 2.0
+        #   clearing: True
+        #   marking: True
+        #   data_type: "LaserScan"
+        #   raytrace_max_range: 6.0
+        #   raytrace_min_range: 0.0
+        #   obstacle_max_range: 6.0
+        #   obstacle_min_range: 0.1
+        #   inf_is_valid: true
           
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -323,7 +336,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
         # 3. NAIKKAN INFLATION RADIUS AGAR SUDUT ROBOT TIDAK NYEREMPET
-        inflation_radius: 1.0
+        inflation_radius: 0.8
         
       always_send_full_costmap: True
 
@@ -420,5 +433,5 @@ velocity_smoother:
     
     odom_topic: "odometry/filtered"
     odom_duration: 0.1
-    deadband_velocity: [0.0, 0.0, 0.03]
+    deadband_velocity: [0.0, 0.0, 0.02]
     velocity_timeout: 1.0

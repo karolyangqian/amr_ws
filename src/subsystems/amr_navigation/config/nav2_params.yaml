@@ -123,7 +123,7 @@ controller_server:
     odom_topic: "odom"
     odom_duration: 0.3
     progress_checker_plugins: ["progress_checker"] # progress_checker_plugin: "progress_checker" For Humble and older
-    goal_checker_plugins: ["goal_checker"] # goal_checker_plugin: "goal_checker" For Galactic and older
+    goal_checker_plugins: ["general_goal_checker"] # goal_checker_plugin: "goal_checker" For Galactic and older
     path_handler_plguins: ["PathHandler"]
     controller_plugins: ["FollowPath"]
 
@@ -141,8 +141,8 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.2
+      yaw_goal_tolerance: 0.1
     FollowPath:
 
       # ============= PLUGIN RPPC =============
@@ -185,34 +185,34 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.26
+      max_vel_x: 0.2
       max_vel_y: 0.0
-      max_vel_theta: 0.5
+      max_vel_theta: 0.4
       min_speed_xy: 0.0
       max_speed_xy: 0.26
       min_speed_theta: 0.0
       acc_lim_x: 2.5
       acc_lim_y: 0.0
-      acc_lim_theta: 2.2
+      acc_lim_theta: 3.8
       decel_lim_x: -2.5
       decel_lim_y: 0.0
-      decel_lim_theta: -2.2
+      decel_lim_theta: -3.8
       vx_samples: 20
       vy_samples: 5
       vtheta_samples: 20
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.2
       path_length_tolerance: 1.0
-      trans_stopped_velocity: 0.25
+      trans_stopped_velocity: 0.03
       short_circuit_trajectory_evaluation: True
       limit_vel_cmd_in_traj: False
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       BaseObstacle.scale: 0.02
-      PathAlign.scale: 22.0
-      GoalAlign.scale: 14.0
+      PathAlign.scale: 32.0
+      GoalAlign.scale: 24.0
       PathAlign.forward_point_distance: 0.1
       GoalAlign.forward_point_distance: 0.1
       PathDist.scale: 32.0
@@ -239,7 +239,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0
-        inflation_radius: 0.60
+        inflation_radius: 0.4
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -256,11 +256,11 @@ local_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 5.0
+          raytrace_max_range: 4.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 4.0
-          obstacle_min_range: 0.1       # Dinaikkan ke 0.1 agar pantulan dari body robot sendiri tidak dibaca sebagai obstacle
-          inf_is_valid: true            # SANGAT PENTING: Untuk menghapus jejak obstacle (ghost obstacle) yang sudah hilang
+          obstacle_max_range: 3.5
+          obstacle_min_range: 0.1
+          inf_is_valid: true
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
@@ -287,33 +287,46 @@ global_costmap:
         enabled: True
         combination_method: 1
         # 2. BACA DARI 2 MATA LIDAR SEKALIGUS
-        observation_sources: front_scan rear_scan
+        # observation_sources: front_scan rear_scan
+        observation_sources: scan
+
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 4.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 3.5
+          obstacle_min_range: 0.1
+          inf_is_valid: true
         
-        # Pengaturan Mata Depan
-        scan_front:
-          topic: /front_scan
-          max_obstacle_height: 2.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 4.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 3.5
-          obstacle_min_range: 0.0
-          inf_is_valid: true
+        # # Pengaturan Mata Depan
+        # scan_front:
+        #   topic: /front_scan
+        #   max_obstacle_height: 2.0
+        #   clearing: True
+        #   marking: True
+        #   data_type: "LaserScan"
+        #   raytrace_max_range: 4.0
+        #   raytrace_min_range: 0.0
+        #   obstacle_max_range: 3.5
+        #   obstacle_min_range: 0.1
+        #   inf_is_valid: true
           
-        # Pengaturan Mata Belakang
-        scan_rear:
-          topic: /rear_scan
-          max_obstacle_height: 2.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 4.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 3.5
-          obstacle_min_range: 0.0
-          inf_is_valid: true
+        # # Pengaturan Mata Belakang
+        # scan_rear:
+        #   topic: /rear_scan
+        #   max_obstacle_height: 2.0
+        #   clearing: True
+        #   marking: True
+        #   data_type: "LaserScan"
+        #   raytrace_max_range: 4.0
+        #   raytrace_min_range: 0.0
+        #   obstacle_max_range: 3.5
+        #   obstacle_min_range: 0.1
+        #   inf_is_valid: true
           
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -323,7 +336,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
         # 3. NAIKKAN INFLATION RADIUS AGAR SUDUT ROBOT TIDAK NYEREMPET
-        inflation_radius: 1.0
+        inflation_radius: 0.8
         
       always_send_full_costmap: True
 
@@ -411,8 +424,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
     
     # [x, y, theta]
-    max_velocity: [0.3, 0.0, 0.2]
-    min_velocity: [-0.3, 0.0, -0.2]
+    max_velocity: [0.15, 0.0, 0.18]
+    min_velocity: [-0.15, 0.0, -0.18]
     
     # [x, y, theta]
     max_accel: [0.3, 0.0, 0.2]
@@ -420,5 +433,5 @@ velocity_smoother:
     
     odom_topic: "odometry/filtered"
     odom_duration: 0.1
-    deadband_velocity: [0.0, 0.0, 0.03]
+    deadband_velocity: [0.0, 0.0, 0.02]
     velocity_timeout: 1.0

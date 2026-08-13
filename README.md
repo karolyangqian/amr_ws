@@ -196,3 +196,101 @@ Terminal ini sudah **otomatis di-source** dengan ROS 2 Humble dan workspace AMR.
 1. Reinhard Iven Wiennata (13223009)
 2. Karol Yangqian Poetracahya (13523093)
 3. Brian A. Hadian (13523048)
+
+
+## Command fast 
+### Terminal 1 
+```
+# 1. Beri izin port
+sudo chmod 666 /dev/ttyUSB* /dev/ttyACM*
+
+# 2. Masuk & source workspace
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+# 3. Launch Bringup
+ros2 launch amr_bringup bringup.launch.py \
+  front_lidar_port:=/dev/ttyUSB0 \
+  rear_lidar_port:=/dev/ttyUSB1 \
+  teensy_port:=/dev/ttyACM0
+```
+
+
+### Terminal 2
+```
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+ros2 launch amr_navigation navigation.launch.py
+```
+
+### TErminal 3 
+```
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 action send_goal /compute_and_track_route nav2_msgs/action/ComputeAndTrackRoute "{
+  goal_id: 4,
+  use_poses: false,
+  use_start: false
+}"    
+```
+```
+# Pastikan semua node Nav2 dan route_server sudah hidup
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+# Kirim goal ke action yang memang ada
+ros2 action send_goal /compute_and_track_route \
+  nav2_msgs/action/ComputeAndTrackRoute \
+  "{goal_id: 4, use_poses: false, use_start: false}"
+```
+
+```
+sudo chmod 666 /dev/ttyACM0
+
+sudo docker run --rm -it --net=host --privileged -v /dev:/dev microros/micro-ros-agent:humble serial --dev /dev/ttyACM0 -b 115200
+
+```
+
+### need to check akan mengeluarkan goal_id , use_poses ,use_start 
+```
+ros2 interface show nav2_msgs/action/ComputeRoute
+
+```
+
+### need to check akan mengeluarkan active [3]
+
+```
+ros2 lifecycle get /route_server
+
+```
+
+
+### track route 
+
+```
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+python3 scripts/track_route.py 4
+
+```
+
+
+### need to check NAvigate through poses 
+```
+ros2 action list | grep navigate_through_poses
+```
+
+### debugging using two waypoint 
+```
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+python3 scripts/test_nav_through_2nodes.py
+```

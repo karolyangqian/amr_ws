@@ -7,13 +7,17 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 
 install(
   DIRECTORY launch config maps rviz
   DESTINATION share/${PROJECT_NAME}
+)
+
+# Install route editor Python script
+install(
+  PROGRAMS
+    amr_navigation/route_editor.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

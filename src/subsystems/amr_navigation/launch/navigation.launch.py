@@ -16,6 +16,7 @@ def generate_launch_description():
     default_map = os.path.join(pkg_nav, 'maps', 'peta_ruangan_dalam.yaml')
     nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
     default_rviz_cfg = os.path.join(pkg_nav, 'rviz', 'navigation.rviz')
+    route_graph_file = os.path.join(pkg_nav,'config','route_graph.geojson')  
 
     # --- Launch Arguments ---
     map_arg = DeclareLaunchArgument(
@@ -67,6 +68,40 @@ def generate_launch_description():
         }.items()
     )
 
+    # ============================================================
+    # NAV2 ROUTE SERVER
+    # ============================================================
+    route_server = LifecycleNode(
+        package='nav2_route',
+        executable='route_server',
+        name='route_server',
+        namespace='',
+        output='screen',
+        parameters=[
+            nav2_params,
+            {
+                'use_sim_time': use_sim_time,
+                'graph_filepath': route_graph_file,
+            }
+        ]
+    )
+    # ============================================================
+    # ROUTE SERVER LIFECYCLE MANAGER
+    # ============================================================
+    route_lifecycle_manager = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='route_lifecycle_manager',
+        namespace='',
+        output='screen',
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'autostart': True,
+            'node_names': [
+                'route_server'
+            ]
+        }]
+    )
 
     rviz_node = Node(
         package='rviz2',
@@ -89,6 +124,10 @@ def generate_launch_description():
 
         # nav2 bringup
         nav2,
+
+        # Nav2 Route Server
+        route_server,
+        route_lifecycle_manager,
 
         # RViz
         rviz_node,

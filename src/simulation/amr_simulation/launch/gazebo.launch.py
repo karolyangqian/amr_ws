@@ -95,7 +95,7 @@ def generate_launch_description():
         world_arg,
         use_rviz_arg,
         gz_sim,
-        # robot_state_publisher,
+        robot_state_publisher,
         spawn_entity,
         bridge,
         rviz

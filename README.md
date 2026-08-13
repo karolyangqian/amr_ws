@@ -285,3 +285,12 @@ python3 scripts/track_route.py 4
 ```
 ros2 action list | grep navigate_through_poses
 ```
+
+### debugging using two waypoint 
+```
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+python3 scripts/test_nav_through_2nodes.py
+```

@@ -16,7 +16,12 @@ def generate_launch_description():
     default_map = os.path.join(pkg_nav, 'maps', 'peta_ruangan_dalam.yaml')
     nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
     default_rviz_cfg = os.path.join(pkg_nav, 'rviz', 'navigation.rviz')
-    route_graph_file = os.path.join(pkg_nav,'config','route_graph.geojson')  
+    route_graph_file = os.path.join(pkg_nav,'config','route_graph.geojson')
+    bt_xml_file = os.path.join(
+        pkg_nav,
+        'behavior_trees',
+        'navigate_w_route.xml'
+    )  
 
     # --- Launch Arguments ---
     map_arg = DeclareLaunchArgument(
@@ -65,6 +70,7 @@ def generate_launch_description():
             'params_file':  nav2_params,
             'slam':         LaunchConfiguration('slam'),
             'autostart':    'True',
+            'default_nav_to_pose_bt_xml': bt_xml_file,
         }.items()
     )
 

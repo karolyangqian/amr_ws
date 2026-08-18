@@ -175,35 +175,31 @@ controller_server:
       # regulated_linear_scaling_min_speed: 0.25
       # use_rotate_to_heading: true
       # allow_reversing: false
-      # rotate_to_heading_min_angle: 0.18
+      # rotate_to_heading_min_angle: 0.785
       # min_distance_to_obstacle: 0.0
       # use_dynamic_window: true
       # allow_obstacle_checking_beyond_goal: false
 
       # ============= PLUGIN DWBLocalPlanner =============
-      # plugin: "dwb_core::DWBLocalPlanner"
-      plugin: "nav2_rotation_shim_controller::RotationShimController"
-      primary_controller: "dwb_core::DWBLocalPlanner"
-      angular_dist_threshold: 0.1
-      rotate_to_heading_angular_vel: 0.2
+      plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
       max_vel_x: 0.2
       max_vel_y: 0.0
-      max_vel_theta: 0.4
+      max_vel_theta: 0.3
       min_speed_xy: 0.0
       max_speed_xy: 0.26
       min_speed_theta: 0.0
       acc_lim_x: 0.3
       acc_lim_y: 0.0
-      acc_lim_theta: 0.2
+      acc_lim_theta: 0.3
       decel_lim_x: -0.3
       decel_lim_y: 0.0
-      decel_lim_theta: -0.2
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 40
+      decel_lim_theta: -0.3
+      vx_samples: 200
+      vy_samples: 200
+      vtheta_samples: 200
       sim_time: 3.0
       linear_granularity: 0.05
       angular_granularity: 0.025
@@ -238,12 +234,12 @@ local_costmap:
       height: 10
       resolution: 0.05
       # robot_radius: 0.22
-      footprint: "[ [0.4, 0.4], [0.4, -0.4], [-0.4, -0.4], [-0.4, 0.4] ]"
+      footprint: "[ [0.5, 0.5], [0.5, -0.5], [-0.5, -0.5], [-0.5, 0.5] ]"
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 2.0
-        inflation_radius: 1.0
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.4
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -280,7 +276,7 @@ global_costmap:
       use_sim_time: false
       
       # 1. FOOTPRINT KOTAK (Hapus robot_radius)
-      footprint: '[ [0.4, 0.4], [0.4, -0.4], [-0.4, -0.4], [-0.4, 0.4] ]'
+      footprint: '[ [0.5, 0.5], [0.5, -0.5], [-0.5, -0.5], [-0.5, 0.5] ]'
       
       resolution: 0.05
       track_unknown_space: true
@@ -338,9 +334,9 @@ global_costmap:
         
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 2.0
+        cost_scaling_factor: 3.0
         # 3. NAIKKAN INFLATION RADIUS AGAR SUDUT ROBOT TIDAK NYEREMPET
-        inflation_radius: 1.0
+        inflation_radius: 0.8
         
       always_send_full_costmap: True
 
@@ -428,8 +424,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
     
     # [x, y, theta]
-    max_velocity: [0.2, 0.0, 0.18]
-    min_velocity: [-0.2, 0.0, -0.18]
+    max_velocity: [0.15, 0.0, 0.18]
+    min_velocity: [-0.15, 0.0, -0.18]
     
     # [x, y, theta]
     max_accel: [0.3, 0.0, 0.2]

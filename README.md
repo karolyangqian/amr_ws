@@ -294,3 +294,26 @@ source install/setup.bash
 
 python3 scripts/test_nav_through_2nodes.py
 ```
+
+
+## Command Simulation 
+```
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+# Akan membuka Gazebo, memunculkan URDF Robot, menjalankan Nav2, dan RViz sekaligus
+ros2 launch amr_bringup simulation.launch.py
+
+```
+
+
+### route editor 
+
+```
+cd ~/Documents/rein_amr/amr_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+python3 src/subsystems/amr_navigation/amr_navigation/route_editor.py
+```

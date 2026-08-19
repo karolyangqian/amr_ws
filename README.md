@@ -354,3 +354,9 @@ source install/setup.bash
 
 python3 src/subsystems/amr_navigation/amr_navigation/route_editor.py
 ```
+
+
+### route follow 
+```
+python3 scripts/follow_route.py 0
+```

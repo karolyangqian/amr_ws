@@ -97,7 +97,7 @@ class FollowRoute(Node):
             diff = math.atan2(math.sin(target_yaw - current_yaw), math.cos(target_yaw - current_yaw))
 
             # Toleransi presisi ketat < 2.3 derajat (0.04 rad)
-            if abs(diff) < 0.75:
+            if abs(diff) < 0.9:
                 cmd = Twist()
                 cmd.angular.z = 0.0
                 self.cmd_pub.publish(cmd)
@@ -122,12 +122,17 @@ class FollowRoute(Node):
 
     def get_closest_node_from_tf(self):
 
-        geojson_path = os.path.expanduser(
-            '~/Documents/rein_amr/amr_ws/src/subsystems/'
-            'amr_navigation/config/route_graph.geojson'
-        )
+        from ament_index_python.packages import get_package_share_directory
+
+        try:
+            pkg_nav = get_package_share_directory('amr_navigation')
+            geojson_path = os.path.join(pkg_nav, 'config', 'route_graph.geojson')
+        except Exception as e:
+            self.get_logger().error(f"Gagal menemukan package amr_navigation: {e}")
+            return None
 
         if not os.path.exists(geojson_path):
+            self.get_logger().error(f"File geojson tidak ditemukan di: {geojson_path}")
             return None
 
         start_time = self.get_clock().now()

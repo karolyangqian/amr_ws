@@ -4,7 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, TimerAction
 from launch.conditions import IfCondition, UnlessCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import PythonLaunchDescriptionSource, FrontendLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import LifecycleNode, Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -239,6 +239,12 @@ def generate_launch_description():
         output='screen',
     )
 
+    rosbridge_server_launch = IncludeLaunchDescription(
+        FrontendLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('rosbridge_server'), 'launch', 'rosbridge_websocket_launch.xml')
+        )
+    )
+
     return LaunchDescription(args + [
         chmod_ports,
         rsp,
@@ -258,6 +264,7 @@ def generate_launch_description():
         # scan_relay,
         zlac_delayed,
         discovery_launch,
-        trigger_route_service
+        trigger_route_service,
+        rosbridge_server_launch,
     ])
 

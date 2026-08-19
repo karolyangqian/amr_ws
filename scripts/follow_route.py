@@ -97,7 +97,7 @@ class FollowRoute(Node):
             diff = math.atan2(math.sin(target_yaw - current_yaw), math.cos(target_yaw - current_yaw))
 
             # Toleransi presisi ketat < 2.3 derajat (0.04 rad)
-            if abs(diff) < 0.04:
+            if abs(diff) < 0.75:
                 cmd = Twist()
                 cmd.angular.z = 0.0
                 self.cmd_pub.publish(cmd)
@@ -105,12 +105,12 @@ class FollowRoute(Node):
                 break
 
             elapsed = (self.get_clock().now() - start_time).nanoseconds / 1e9
-            if elapsed > 10.0:
+            if elapsed > 15.0:
                 self.get_logger().warn("Timeout rotasi di tempat terlewati, melanjutkan...")
                 break
 
             cmd = Twist()
-            rot_speed = max(0.12, min(0.35, 0.7 * abs(diff)))
+            rot_speed = max(0.1, min(0.3, 0.7 * abs(diff)))
             cmd.angular.z = rot_speed if diff > 0 else -rot_speed
             self.cmd_pub.publish(cmd)
 

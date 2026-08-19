@@ -126,7 +126,7 @@ class FollowRoute(Node):
 
         try:
             pkg_nav = get_package_share_directory('amr_navigation')
-            geojson_path = os.path.join(pkg_nav, 'config', 'route_graph.geojson')
+            geojson_path = os.path.join(pkg_nav, 'config', 'route_graph_luar.geojson')
         except Exception as e:
             self.get_logger().error(f"Gagal menemukan package amr_navigation: {e}")
             return None

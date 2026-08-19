@@ -16,7 +16,7 @@ def generate_launch_description():
     default_map = os.path.join(pkg_nav, 'maps', 'lantai1.yaml')
     nav2_params = os.path.join(pkg_nav, 'config', 'nav2_params.yaml')
     default_rviz_cfg = os.path.join(pkg_nav, 'rviz', 'navigation.rviz')
-    route_graph_file = os.path.join(pkg_nav,'config','route_graph.geojson')  
+    route_graph_file = os.path.join(pkg_nav,'config','route_graph_luar.geojson')
 
     # --- Launch Arguments ---
     map_arg = DeclareLaunchArgument(

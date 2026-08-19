@@ -239,10 +239,10 @@ def generate_launch_description():
         output='screen',
     )
 
-    rosbridge_server_launch = IncludeLaunchDescription(
-        FrontendLaunchDescriptionSource(
-            os.path.join(get_package_share_directory('rosbridge_server'), 'launch', 'rosbridge_websocket_launch.xml')
-        )
+    rosbridge_server = Node(
+        package='rosbridge_server',
+        executable='rosbridge_websocket',
+        parameters=[{'port': 9090}]
     )
 
     return LaunchDescription(args + [
@@ -265,6 +265,6 @@ def generate_launch_description():
         zlac_delayed,
         discovery_launch,
         trigger_route_service,
-        rosbridge_server_launch,
+        rosbridge_server,
     ])
 

@@ -439,7 +439,7 @@ velocity_smoother:
 route_server:
   ros__parameters:
     use_sim_time: false
-    graph_filepath: "/home/rein/Documents/rein_amr/amr_ws/src/subsystems/amr_navigation/config/route_graph.geojson"
+    graph_filepath: "" # Path ini akan dioverride secara otomatis oleh navigation.launch.py
     path_density: 0.1
-    smooth_corners: true
-    smoothing_radius: 0.7 
+    smooth_corners: false
+    smoothing_radius: 0.0

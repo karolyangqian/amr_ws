@@ -97,7 +97,7 @@ class FollowRoute(Node):
             diff = math.atan2(math.sin(target_yaw - current_yaw), math.cos(target_yaw - current_yaw))
 
             # Toleransi presisi ketat < 2.3 derajat (0.04 rad)
-            if abs(diff) < 0.9:
+            if abs(diff) < 1,0:
                 cmd = Twist()
                 cmd.angular.z = 0.0
                 self.cmd_pub.publish(cmd)

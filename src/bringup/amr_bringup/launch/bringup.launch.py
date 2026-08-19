@@ -231,6 +231,14 @@ def generate_launch_description():
         )
     )
 
+    # action server for remote route execution
+    execute_route_action_server = Node(
+        package='amr_navigation',
+        executable='trigger_route_service.py',
+        name='trigger_route_service',
+        output='screen',
+    )
+
     return LaunchDescription(args + [
         chmod_ports,
         rsp,
@@ -250,5 +258,6 @@ def generate_launch_description():
         # scan_relay,
         zlac_delayed,
         discovery_launch,
+        execute_route_action_server
     ])
 

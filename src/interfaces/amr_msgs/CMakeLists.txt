@@ -10,6 +10,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/MissionCommand.msg"
   "msg/MissionStatus.msg"
   "msg/RobotStatus.msg"
+  "srv/TriggerRoute.srv"
   DEPENDENCIES builtin_interfaces std_msgs
 )
 

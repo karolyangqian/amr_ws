@@ -14,7 +14,44 @@ Shenzhen Yuedeng Technology Co.,Ltd.
 5. ZLAC8105D Motor Driver
 6. WiFi
 
-## How to Run with Docker (Recommended)
+## How to Run (Development | 19 Agustus 2026)
+1. Pastikan micro_ros_agent container berjalan
+```bash
+docker ps
+```
+
+2. Jika micro_ros_agent belum jalan, jalankan:
+```bash
+# ~/amr_ws
+docker compose up micro_ros_agent
+```
+
+3. Jalankan bringup
+```bash
+ros2 launch amr_bringung bringup.launch.py
+```
+
+4. Jalankan navigasi
+```bash
+# Default menggunakan map Labtek VII ITB
+ros2 launch amr_navigation navigation.launch.py
+
+# Catatan:
+# Gunakan argument rviz:=True jika ingin langsung melihat visualisasi
+# ros2 launch amr_navigation navigation.launch.py rviz:=True
+```
+
+5. Jika ingin menggunakan map berbeda, jalankan navigasi dengan argumen `map`
+```bash
+ros2 launch amr_navigation navigation.launch.py map:=/path/to/other_map.yaml
+```
+
+6. Untuk melihat rviz2 untuk navigation secara terpisah (misal di remote PC), jalankan:
+```bash
+ros2 launch amr_navigation nav_rviz.launch.py
+```
+
+## How to Run with Docker (Recommended/Intended)
 
 Dengan Docker, Anda tidak perlu menginstal ROS 2 atau dependensi driver secara native pada PC host. Seluruh sistem robot, driver, dan visualisasi dapat berjalan langsung di container.
 

@@ -33,7 +33,7 @@ def generate_launch_description():
 
     rviz_arg = DeclareLaunchArgument(
         'rviz',
-        default_value='True',
+        default_value='False',
         description='Launch RViz navigation view'
     )
 

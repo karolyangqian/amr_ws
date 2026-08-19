@@ -17,6 +17,7 @@ install(
 install(
   PROGRAMS
     amr_navigation/route_editor.py
+    amr_navigation/trigger_route_service.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

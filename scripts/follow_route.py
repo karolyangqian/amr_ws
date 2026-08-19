@@ -122,10 +122,7 @@ class FollowRoute(Node):
 
     def get_closest_node_from_tf(self):
 
-        geojson_path = os.path.expanduser(
-            '~/Documents/rein_amr/amr_ws/src/subsystems/'
-            'amr_navigation/config/route_graph.geojson'
-        )
+        geojson_path = os.path.join('./src/subsystems/amr_navigation/config/route_graph.geojson')
 
         if not os.path.exists(geojson_path):
             return None

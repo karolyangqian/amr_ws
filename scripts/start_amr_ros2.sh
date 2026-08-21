@@ -9,5 +9,4 @@ source /home/amr/amr_ws/install/setup.bash
 export ROS_DOMAIN_ID=0
 
 # Execute the launch command
-ros2 launch amr_bringup bringup.launch.py
-ros2 launch amr_navigation navigation.launch.py rviz:=false
+ros2 launch amr_bringup amr_full.launch.py

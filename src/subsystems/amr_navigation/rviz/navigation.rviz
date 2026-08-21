@@ -8,6 +8,7 @@ Panels:
         - /Map1
         - /GlobalCostmap1
         - /LocalCostmap1
+        - /Path1
       Splitter Ratio: 0.5
     Tree Height: 322
   - Class: rviz_common/Tool Properties
@@ -50,7 +51,8 @@ Visualization Manager:
       Enabled: true
       Name: RouteGraph
       Namespaces:
-        {}
+        route_graph: true
+        route_graph_ids: true
       Topic:
         Depth: 5
         Durability Policy: Transient Local
@@ -523,7 +525,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /lookahead_collision_arc
+        Value: /local_plan
       Value: true
   Enabled: true
   Global Options:

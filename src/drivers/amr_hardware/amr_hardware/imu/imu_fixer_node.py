@@ -4,36 +4,28 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Imu
 
-
-# BNO08x covariance per sensor type (diagonal 3x3, row-major):
-# - Orientasi (SH2_ROTATION_VECTOR fusion): sangat akurat, yaw sedikit lebih noisy
-#   karena magnetometer bisa terpengaruh motor/logam di sekitar robot
-# - Gyro (SH2_GYROSCOPE_CALIBRATED): akurat, noise kecil
-# - Linear accel (SH2_LINEAR_ACCELERATION): lebih noisy, dipakai hanya sebagai koreksi
+# Matriks kovariansi 3x3 (row-major) dengan nilai variansi realistis BNO08x
+# Roll & Pitch diberi variansi tinggi (1e6) untuk robot mobile 2D
 _COV_ORIENT = [
-    1e-5, 0.0,  0.0,
-    0.0,  1e-5, 0.0,
-    0.0,  0.0,  1e-4,   # yaw sedikit lebih longgar (mag interference dari motor)
+    1e6, 0.0, 0.0,
+    0.0, 1e6, 0.0,
+    0.0, 0.0, 0.004   # ~3.6 deg uncertainty untuk Game Rotation Vector
 ]
+
 _COV_GYRO = [
-    1e-5, 0.0,  0.0,
-    0.0,  1e-5, 0.0,
-    0.0,  0.0,  1e-5,
+    1e6, 0.0, 0.0,
+    0.0, 1e6, 0.0,
+    0.0, 0.0, 0.0003  # Noise density Gyroscope Z BNO08x
 ]
+
 _COV_ACCEL = [
-    5e-3, 0.0,  0.0,
-    0.0,  5e-3, 0.0,
-    0.0,  0.0,  5e-3,   # lebih noisy — EKF tidak over-trust linear accel
+    0.01, 0.0,  0.0,
+    0.0,  0.01, 0.0,
+    0.0,  0.0,  1e6   # Sumbu Z tidak digunakan pada navigasi planar 2D
 ]
 
 
 class ImuFixerNode(Node):
-    """
-    Menerima /imu/data dari Teensy (micro-ROS, tanpa timestamp & covariance),
-    menambahkan timestamp PC + covariance, lalu re-publish ke /imu/data_fixed
-    agar dapat dikonsumsi oleh robot_localization EKF.
-    """
-
     def __init__(self):
         super().__init__('imu_fixer_node')
 
@@ -43,27 +35,33 @@ class ImuFixerNode(Node):
         self.create_subscription(Imu, '/imu/data', self._imu_cb, 10)
         self._pub = self.create_publisher(Imu, '/imu/data_fixed', 10)
 
-        self.get_logger().info('imu_fixer_node started — /imu/data → /imu/data_fixed')
+        self.get_logger().info('imu_fixer_node started — /imu/data -> /imu/data_fixed')
 
     def _imu_cb(self, msg: Imu):
+        # 1. Update timestamp & frame
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = self._frame_id
 
+        # 2. Normalisasi Quaternion untuk mencegah error komputasi di EKF
         q = msg.orientation
-        norm = math.sqrt(q.x**2 + q.y**2 + q.z**2 + q.w**2)
-        if norm > 1e-6:
+        norm_sq = q.x**2 + q.y**2 + q.z**2 + q.w**2
+        
+        if norm_sq > 1e-6:
+            norm = math.sqrt(norm_sq)
             msg.orientation.x /= norm
             msg.orientation.y /= norm
             msg.orientation.z /= norm
             msg.orientation.w /= norm
         else:
+            # Fallback jika quaternion bernilai invalid/nol
             msg.orientation.x = 0.0
             msg.orientation.y = 0.0
             msg.orientation.z = 0.0
             msg.orientation.w = 1.0
 
-        msg.orientation_covariance         = _COV_ORIENT
-        msg.angular_velocity_covariance    = _COV_GYRO
+        # 3. Masukkan matriks kovariansi
+        msg.orientation_covariance = _COV_ORIENT
+        msg.angular_velocity_covariance = _COV_GYRO
         msg.linear_acceleration_covariance = _COV_ACCEL
 
         self._pub.publish(msg)

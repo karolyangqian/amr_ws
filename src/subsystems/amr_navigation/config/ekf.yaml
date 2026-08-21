@@ -13,7 +13,11 @@ ekf_filter_node:
     # SENSOR 1: ODOMETRI RODA (dari odom_node.py)
     # ===============================================
     odom0: /odom
-    # Matriks Konfigurasi: [X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz, Vroll, Vpitch, Vyaw, Ax, Ay, Az]
+    # Matriks Konfigurasi: [X, Y, Z, 
+    #                       Roll, Pitch, Yaw, 
+    #                       Vx, Vy, Vz, 
+    #                       Vroll, Vpitch, Vyaw, 
+    #                       Ax, Ay, Az]
     # Fuse HANYA kecepatan Vx dan Vyaw dari encoder (TIDAK X, Y absolut)
     odom0_config: [false, false, false,
                    false, false, false,
@@ -26,7 +30,11 @@ ekf_filter_node:
     # SENSOR 2: IMU BNO08x (dari Teensy)
     # ===============================================
     imu0: /imu/data_fixed
-    # Matriks Konfigurasi: [X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz, Vroll, Vpitch, Vyaw, Ax, Ay, Az]
+    # Matriks Konfigurasi: [X, Y, Z, 
+    #                       Roll, Pitch, Yaw, 
+    #                       Vx, Vy, Vz, 
+    #                       Vroll, Vpitch, Vyaw, 
+    #                       Ax, Ay, Az]
     # Fuse HANYA orientasi Yaw (arah hadap absolut dari IMU)
     # Vx dan Vyaw sudah dari encoder, jadi tidak perlu dari IMU
     imu0_config: [false, false, false,

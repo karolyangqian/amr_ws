@@ -124,7 +124,6 @@ controller_server:
     odom_duration: 0.3
     progress_checker_plugins: ["progress_checker"] # progress_checker_plugin: "progress_checker" For Humble and older
     goal_checker_plugins: ["general_goal_checker"] # goal_checker_plugin: "goal_checker" For Galactic and older
-    path_handler_plguins: ["PathHandler"]
     controller_plugins: ["FollowPath"]
 
     # Progress checker parameters
@@ -189,7 +188,7 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.2
+      max_vel_x: 0.3
       max_vel_y: 0.0
       max_vel_theta: 0.4
       min_speed_xy: 0.0
@@ -197,17 +196,17 @@ controller_server:
       min_speed_theta: 0.0
       acc_lim_x: 0.3
       acc_lim_y: 0.0
-      acc_lim_theta: 0.2
+      acc_lim_theta: 0.5
       decel_lim_x: -0.3
       decel_lim_y: 0.0
-      decel_lim_theta: -0.2
+      decel_lim_theta: -0.5
       vx_samples: 20
       vy_samples: 5
-      vtheta_samples: 40
-      sim_time: 3.0
+      vtheta_samples: 60
+      sim_time: 5.0
       linear_granularity: 0.05
       angular_granularity: 0.025
-      xy_goal_tolerance: 0.2
+      xy_goal_tolerance: 0.25
       path_length_tolerance: 1.0
       trans_stopped_velocity: 0.03
       short_circuit_trajectory_evaluation: True
@@ -228,8 +227,8 @@ controller_server:
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0
-      publish_frequency: 2.0
+      update_frequency: 10.0
+      publish_frequency: 10.0
       global_frame: odom
       robot_base_frame: base_footprint
       use_sim_time: false
@@ -238,7 +237,7 @@ local_costmap:
       height: 10
       resolution: 0.05
       # robot_radius: 0.22
-      footprint: "[ [0.4, 0.4], [0.4, -0.4], [-0.4, -0.4], [-0.4, 0.4] ]"
+      footprint: "[ [0.45, 0.45], [0.45, -0.45], [-0.45, -0.45], [-0.45, 0.45] ]"
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -273,14 +272,14 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
-      update_frequency: 5.0
-      publish_frequency: 1.0
+      update_frequency: 10.0
+      publish_frequency: 10.0
       global_frame: map
       robot_base_frame: base_footprint
       use_sim_time: false
       
       # 1. FOOTPRINT KOTAK (Hapus robot_radius)
-      footprint: '[ [0.4, 0.4], [0.4, -0.4], [-0.4, -0.4], [-0.4, 0.4] ]'
+      footprint: '[ [0.45, 0.45], [0.45, -0.45], [-0.45, -0.45], [-0.45, 0.45] ]'
       
       resolution: 0.05
       track_unknown_space: true
@@ -428,8 +427,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
     
     # [x, y, theta]
-    max_velocity: [0.2, 0.0, 0.18]
-    min_velocity: [-0.2, 0.0, -0.18]
+    max_velocity: [0.3, 0.0, 0.2]
+    min_velocity: [-0.3, 0.0, -0.2]
     
     # [x, y, theta]
     max_accel: [0.3, 0.0, 0.2]

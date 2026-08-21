@@ -248,7 +248,10 @@ def generate_launch_description():
     rosbridge_server_launch = IncludeLaunchDescription(
         FrontendLaunchDescriptionSource(
             os.path.join(get_package_share_directory('rosbridge_server'), 'launch', 'rosbridge_websocket_launch.xml')
-        )
+        ),
+        launch_arguments={
+            'port': '9090'
+        }.items()
     )
 
     return LaunchDescription(args + [
